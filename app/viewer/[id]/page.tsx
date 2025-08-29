@@ -2,6 +2,12 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
+type Props = {
+  params: {
+    id: string;
+  };
+};
+
 async function getFile(id: string) {
   const { data, error } = await supabase
     .from('files')
@@ -16,7 +22,7 @@ async function getFile(id: string) {
   return data
 }
 
-export default async function PDFViewer({ params }: { params: { id: string } }) {
+export default async function PDFViewer({ params }: Props) {
   const file = await getFile(params.id)
 
   if (!file) {
