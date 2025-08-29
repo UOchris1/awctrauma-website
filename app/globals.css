@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-silver-100 text-primary-900 min-h-screen antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-primary-900;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent;
+  }
+  
+  .section-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgb(229 231 235 / 40%) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}

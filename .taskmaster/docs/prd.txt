@@ -1,0 +1,171 @@
+# Product Requirements Document: Abrazo West Trauma Website
+
+## 1. Project Overview
+
+The Abrazo West Trauma Website is a professional, streamlined, mobile-first web application designed to serve as a centralized resource portal for the Abrazo West Campus Level 1 Trauma Center. The website will provide medical professionals with easy access to resident guidelines, clinical practice guidelines, trauma policies, and essential resources, while featuring a secure admin portal for content management.
+
+## 2. Target Audience & User Personas
+
+### Primary Users:
+- **Medical Residents**: Need quick access to guidelines, protocols, and educational resources during their rotation
+- **Attending Surgeons**: Require immediate access to clinical practice guidelines and trauma policies
+- **Trauma Team Members**: Including nurses and technicians who need reference materials for protocols
+- **Medical Students**: Seeking educational resources and guidelines for trauma care
+
+### User Needs:
+- Fast, mobile-friendly access to documents
+- Clear categorization of resources
+- Reliable, always-available reference materials
+- Easy-to-navigate interface during critical situations
+
+## 3. Key Features & Functionality
+
+### 3.1 Public-Facing Portal
+- Professional, clean interface optimized for medical professionals
+- Fast-loading, distraction-free design
+- Mobile-first responsive layout
+- Intuitive navigation structure
+
+### 3.2 Content Categories
+1. **Resident Guidelines**: Training materials, rotation schedules, procedural guides
+2. **Clinical Practice Guidelines (CPGs)**: Evidence-based treatment protocols
+3. **Trauma Policies**: Hospital-specific policies and procedures
+4. **Useful Links & Resources**: External references, educational materials
+
+### 3.3 File Display System
+- Clean, clickable card-based interface for documents
+- Display metadata: title, upload date, file type
+- One-click view/download functionality
+- Support for PDF and other common document formats
+
+### 3.4 Admin Upload Portal
+- Password-protected admin page at `/admin`
+- File upload interface with drag-and-drop support
+- Category selection dropdown
+- Title and description fields
+- Upload date tracking
+- Success/error feedback
+
+### 3.5 Responsive Design
+- Mobile-first approach
+- Optimized for smartphones, tablets, and desktop
+- Touch-friendly interface elements
+- Fast loading times on all devices
+
+## 4. Content Architecture
+
+### Information Hierarchy:
+```
+Homepage
+├── Header (Hospital name, site title)
+├── Main Content Area
+│   ├── Resident Guidelines Section
+│   │   └── File Cards (sorted by date)
+│   ├── Clinical Practice Guidelines Section
+│   │   └── File Cards (sorted by date)
+│   ├── Trauma Policies Section
+│   │   └── File Cards (sorted by date)
+│   └── Useful Links & Resources Section
+│       └── File Cards (sorted by date)
+└── Footer (Copyright, contact info)
+
+Admin Page (/admin)
+├── Password Protection
+├── Upload Form
+│   ├── File Input
+│   ├── Title Field
+│   ├── Category Dropdown
+│   └── Submit Button
+└── Success/Error Messages
+```
+
+## 5. Technical Architecture
+
+### 5.1 Tech Stack
+- **Framework**: Next.js 14+ with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Database**: Supabase (PostgreSQL)
+- **File Storage**: Supabase Storage
+- **Deployment**: Vercel
+- **Package Manager**: npm
+
+### 5.2 Database Schema
+```sql
+Table: files
+- id (UUID, primary key)
+- created_at (timestamp)
+- title (text, required)
+- description (text, optional)
+- file_url (text, required)
+- category (enum: 'resident_guidelines', 'cpgs', 'trauma_policies', 'resources')
+```
+
+### 5.3 Storage Structure
+- Bucket: `guidelines`
+- Public read access
+- Admin write access via API
+
+## 6. Design & UX Principles
+
+### 6.1 Visual Design
+- **Color Palette**: 
+  - Primary: Professional blue (#0066CC)
+  - Secondary: Medical white (#FFFFFF)
+  - Accent: Neutral grays (#F5F5F5, #333333)
+- **Typography**: Clean, readable sans-serif fonts
+- **Spacing**: Generous whitespace for clarity
+- **Icons**: Minimal, functional iconography
+
+### 6.2 User Experience
+- **Accessibility**: WCAG 2.1 AA compliance
+- **Performance**: Core Web Vitals optimized
+- **Navigation**: Maximum 2 clicks to any resource
+- **Search**: Future consideration for search functionality
+- **Loading**: Progressive enhancement, skeleton screens
+
+## 7. Development Tasks
+
+### Phase 1: Project Setup
+- Task 0: Initialize Git repository and Next.js project with TypeScript, Tailwind CSS, App Router
+- Task 1: Create Product Requirements Document
+- Task 2: Configure Supabase database schema and storage bucket
+- Task 3: Set up environment variables and .gitignore
+
+### Phase 2: Foundation
+- Task 4: Establish Tailwind CSS styling foundation and color palette
+- Task 5: Build core reusable UI components (Header, Footer, FileCard)
+
+### Phase 3: Core Functionality
+- Task 6: Develop homepage with data fetching from Supabase
+- Task 7: Build admin page UI with upload form
+- Task 8: Implement file upload server action with validation
+
+### Phase 4: Polish & Deployment
+- Task 9: Final responsive design review and polish
+- Task 10: Prepare deployment documentation and README
+
+## 8. Security Requirements
+
+- Password protection for admin portal
+- Environment variable management for sensitive data
+- Row Level Security (RLS) policies in Supabase
+- Input validation and sanitization
+- Secure file upload with type restrictions
+
+## 9. Performance Requirements
+
+- Initial page load under 3 seconds on 3G
+- Time to Interactive under 5 seconds
+- Lighthouse score above 90 for all metrics
+- Optimized image and file serving
+- CDN integration via Vercel
+
+## 10. Future Enhancements
+
+- Search functionality across all documents
+- User authentication for personalized content
+- Document versioning and history
+- Analytics and usage tracking
+- Email notifications for new content
+- Multi-language support
