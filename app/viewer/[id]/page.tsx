@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
-// Next.js 15 requires params to be wrapped in Promise for dynamic routes
+// Updated for Next.js 15: params is now a Promise in dynamic routes
 type Props = {
   params: Promise<{
     id: string;
@@ -24,9 +24,10 @@ async function getFile(id: string) {
 }
 
 export default async function PDFViewer({ params }: Props) {
-  // Await the params Promise as required by Next.js 15
-  const resolvedParams = await params
-  const file = await getFile(resolvedParams.id)
+  // Await the params Promise to get the actual values
+  const { id } = await params;
+
+  const file = await getFile(id)
 
   if (!file) {
     notFound()
