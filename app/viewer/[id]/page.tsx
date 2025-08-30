@@ -3,9 +3,9 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
 type Props = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 async function getFile(id: string) {
@@ -23,7 +23,8 @@ async function getFile(id: string) {
 }
 
 export default async function PDFViewer({ params }: Props) {
-  const file = await getFile(params.id)
+  const resolvedParams = await params
+  const file = await getFile(resolvedParams.id)
 
   if (!file) {
     notFound()
