@@ -1,5 +1,5 @@
 # Abrazo West Trauma Center Resources
-<!-- Deployment: 2025-01-30 -->
+<!-- Deployment: 2025-01-30 - v0.1.1 -->
 
 A professional web application providing medical staff with easy access to trauma center resources, guidelines, and policies.
 
