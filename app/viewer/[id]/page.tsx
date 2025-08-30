@@ -1,11 +1,12 @@
-import { supabase } from '@/lib/supabase'
+Of course. Here is the complete, corrected code for the app/viewer/[id]/page.tsx file.The key changes are:The type Props has been fixed to remove the incorrect Promise<>.The PDFViewer function now uses params.id directly, as it should.Simply replace the entire contents of your app/viewer/[id]/page.tsx file with the code below.Completed and Corrected Code for app/viewer/[id]/page.tsx code TypeScriptdownloadcontent_copyexpand_less    import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
+// CORRECTED: The 'params' object is a plain object, not a Promise.
 type Props = {
-  params: Promise<{
-    id: string;
-  }>;
+  params: {
+    id:string;
+  };
 };
 
 async function getFile(id: string) {
@@ -23,8 +24,8 @@ async function getFile(id: string) {
 }
 
 export default async function PDFViewer({ params }: Props) {
-  const resolvedParams = await params
-  const file = await getFile(resolvedParams.id)
+  // CORRECTED: Removed "await params" and now using "params.id" directly.
+  const file = await getFile(params.id)
 
   if (!file) {
     notFound()
@@ -67,7 +68,7 @@ export default async function PDFViewer({ params }: Props) {
                 className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002 2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
                 <span>Open in New Tab</span>
               </a>
@@ -105,3 +106,7 @@ export default async function PDFViewer({ params }: Props) {
     </div>
   )
 }
+  Your Next and Final StepAfter replacing the code and saving the file, push this change to GitHub to trigger your final, successful deployment.In your VS Code terminal: code Bashdownloadcontent_copyexpand_lessIGNORE_WHEN_COPYING_STARTIGNORE_WHEN_COPYING_END    git add .
+git commit -m "Final fix for viewer page props"
+git push origin main
+  
