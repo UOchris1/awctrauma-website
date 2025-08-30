@@ -2,6 +2,7 @@
   "name": "abrazo-west-trauma",
   "version": "0.1.0",
   "private": true,
+  "description": "AWC Trauma Center Resource Portal",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
