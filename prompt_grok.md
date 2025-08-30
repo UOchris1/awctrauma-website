@@ -1,144 +1,96 @@
-Create utility functions for Supabase clients:
+(base) PS C:\projects\awctrauma-website> npm run build
 
-Create a folder like src/utils/supabase/ (or adjust to match your structure, e.g., lib/supabase/ if that's what you use).
-In src/utils/supabase/browser.ts (for client-side components):
-typescriptimport { createBrowserClient } from '@supabase/ssr'
+abrazo-west-trauma@0.1.1 build
+next build
+   ▲ Next.js 15.5.2
+   - Environments: .env.local, .env.production, .env
+   - Experiments (use with caution):
+     · serverActions
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 19.8s
+ ✓ Linting and checking validity of types
+ ✓ Collecting page data
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_not-found. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /admin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /test. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ✓ Generating static pages (11/11)
+ ✓ Collecting build traces
+ ✓ Finalizing page optimization
+Route (app) Size First Load JS Revalidate Expire
+┌ ○ / 945 B 106 kB 5m 1y
+├ ○ /_not-found 993 B 103 kB
+├ ○ /admin 2.2 kB 104 kB
+├ ƒ /api/auth 132 B 102 kB
+├ ƒ /api/upload 132 B 102 kB
+├ ○ /login 989 B 103 kB
+├ ○ /robots.txt 132 B 102 kB
+├ ○ /sitemap.xml 132 B 102 kB
+├ ○ /test 945 B 106 kB
+└ ƒ /viewer/[id] 162 B 106 kB
 
-export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+
+First Load JS shared by all 102 kB
+  ├ chunks/255-e3bf15caf1f1e0f9.js 45.7 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js 54.2 kB
+  └ other shared chunks (total) 1.99 kB
+ƒ Middleware 33 kB
+○ (Static) prerendered as static content
+ƒ (Dynamic) server-rendered on demand
+(base) PS C:\projects\awctrauma-website>
+Thought for 11sTo resolve the warnings about unsupported viewport metadata in your Next.js 15 build, update the affected pages or layouts (e.g., app/_not-found/page.tsx, app/admin/page.tsx, app/login/page.tsx, app/test/page.tsx, and the root app/page.tsx or app/layout.tsx if shared). These warnings don't block the build but indicate a deprecated pattern—viewport config must now be exported separately via a viewport constant or generateViewport function.
+Step-by-Step Fix
+
+Locate the Viewport Config: In each file with the warning, look for an export const metadata object that includes a viewport property, like:
+typescriptexport const metadata = {
+  title: 'Page Title',
+  viewport: 'width=device-width, initial-scale=1',  // This is the issue
+  // other metadata
 }
 
-In src/utils/supabase/server.ts (for server-side code, like pages or actions; this handles cookies for sessions):
-typescriptimport { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+Refactor to Separate Export: Split it out. Use one of these options (both work; the function is more flexible for dynamic values):
 
-export async function createClient() {
-  const cookieStore = await cookies()
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
-          } catch {
-            // Ignore if called from a Server Component
-          }
-        },
-      },
-    }
-  )
+Static Object:
+typescriptexport const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  // Add other viewport options if needed, like maximumScale: 1, userScalable: false
 }
 
-In src/utils/supabase/middleware.ts (for session refresh in middleware):
-typescriptimport { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
-
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
-
-  // Refreshing the auth token
-  await supabase.auth.getUser()
-
-  return supabaseResponse
+export const metadata = {
+  title: 'Page Title',
+  // other metadata without viewport
 }
 
-
-
-Set up middleware to handle session updates (create middleware.ts at the project root or in src/):
-typescriptimport { type NextRequest } from 'next/server'
-import { updateSession } from '@/utils/supabase/middleware'
-
-export async function middleware(request: NextRequest) {
-  return await updateSession(request)
-}
-
-export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
-}
-
-Update your code to use the new clients:
-
-Replace imports like import { createClient } from '@supabase/auth-helpers-nextjs' with the new utilities.
-For server-side (e.g., in your app/viewer/[id]/page.tsx or other server components):
-typescriptimport { createClient } from '@/utils/supabase/server'  // Adjust path if needed
-
-// In getFile:
-const supabase = await createClient()
-// Then use supabase.from(...) as before
-
-For client-side components (if any):
-typescriptimport { createClient } from '@/utils/supabase/browser'
-
-const supabase = createClient()
-
-If you have auth routes (e.g., login, confirm), update them similarly. For example, add a confirmation handler if needed (see Supabase docs for full auth flow).
-
-
-Handle auth confirmation (if using email auth):
-
-In your Supabase dashboard > Authentication > Templates, update the "Confirm signup" template to point to /auth/confirm?token_hash={{ .TokenHash }}&type=email.
-Create app/auth/confirm/route.ts:
-typescriptimport { type EmailOtpType } from '@supabase/supabase-js'
-import { type NextRequest } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
-
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const token_hash = searchParams.get('token_hash')
-  const type = searchParams.get('type') as EmailOtpType | null
-  const next = searchParams.get('next') ?? '/'
-
-  if (token_hash && type) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.verifyOtp({
-      type,
-      token_hash,
-    })
-    if (!error) {
-      redirect(next)
-    }
+Function (if you need logic):
+typescriptexport function generateViewport() {
+  return {
+    width: 'device-width',
+    initialScale: 1,
+    // other options
   }
-  redirect('/error')
+}
+
+export const metadata = {
+  title: 'Page Title',
+  // other metadata
 }
 
 
 
+Apply to All Affected Routes:
 
-After making these changes, test locally with npm run dev, commit/push to your main branch, and redeploy on Vercel. If you run into errors (e.g., during auth or queries), share the specific error log or the contents of your current supabase lib file for more targeted fixes.
-For the telemetry notice: It's standard and anonymous; if you want to opt out, run npx next telemetry disable locally or add it to your scripts.
-If your build completed successfully after this log snippet (check Vercel dashboard for the full output), your site should be live—test it! If not, paste the full build error.
+For /_not-found: Edit app/_not-found/page.tsx or its layout.
+For /admin: Edit app/admin/page.tsx.
+For /login: Edit app/login/page.tsx.
+For /test: Edit app/test/page.tsx.
+For / (root): Edit app/page.tsx or app/layout.tsx (if the viewport is in a shared layout, fixing it there might resolve multiple warnings at once).
+
+
+Test Locally: After changes, run npm run build again to confirm the warnings are gone. If any persist, check for viewport in parent layouts.
