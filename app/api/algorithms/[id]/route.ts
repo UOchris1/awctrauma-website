@@ -1,0 +1,102 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
+
+// GET - Fetch single algorithm
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+
+    const { data, error } = await supabase
+      .from('algorithms')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      console.error('Error fetching algorithm:', error)
+      return NextResponse.json({ error: 'Algorithm not found' }, { status: 404 })
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// PUT - Update algorithm
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Check authentication
+    const authCookie = request.cookies.get('admin-auth')
+    if (!authCookie || authCookie.value !== 'true') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { id } = await params
+    const body = await request.json()
+    const { title, short_title, icon_type, image_url, sort_order, is_active } = body
+
+    const updateData: Record<string, unknown> = {}
+    if (title !== undefined) updateData.title = title
+    if (short_title !== undefined) updateData.short_title = short_title
+    if (icon_type !== undefined) updateData.icon_type = icon_type
+    if (image_url !== undefined) updateData.image_url = image_url
+    if (sort_order !== undefined) updateData.sort_order = sort_order
+    if (is_active !== undefined) updateData.is_active = is_active
+
+    const { data, error } = await supabase
+      .from('algorithms')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating algorithm:', error)
+      return NextResponse.json({ error: 'Failed to update algorithm' }, { status: 500 })
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// DELETE - Delete algorithm
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Check authentication
+    const authCookie = request.cookies.get('admin-auth')
+    if (!authCookie || authCookie.value !== 'true') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { id } = await params
+
+    const { error } = await supabase
+      .from('algorithms')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error deleting algorithm:', error)
+      return NextResponse.json({ error: 'Failed to delete algorithm' }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
