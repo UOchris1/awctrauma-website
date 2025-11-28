@@ -19,10 +19,12 @@ Since Vercel is stuck on an old commit, create a fresh deployment:
 3. **Configure Environment Variables**:
    Add these in the Vercel deployment screen:
    ```
-   NEXT_PUBLIC_SUPABASE_URL=https://umivnjhsafvlazjohqhj.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtaXZuamhzYWZ2bGF6am9ocWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MzgzODYsImV4cCI6MjA3MjAxNDM4Nn0.VFN_CpyBOAC4AiSrKR0eo-QFgDCuOXeylCprs6nduug
-   ADMIN_PASSWORD=#Mycomputer1!
+   NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+   ADMIN_PASSWORD=<your-secure-admin-password>
    ```
+
+   **Get values from:** Supabase Dashboard > Settings > API
 
 4. **Deploy**:
    - Click "Deploy"

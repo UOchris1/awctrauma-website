@@ -64,7 +64,7 @@ Last Updated: 2025-11-27
 ## ENVIRONMENT
 
 - Dev server: http://localhost:3002
-- `.env.local` has `ADMIN_PASSWORD="#Mycomputer1!"` (quoted)
+- `.env.local` has `ADMIN_PASSWORD` set (get from Vercel dashboard)
 - Database migration executed in Supabase
 
 ---
