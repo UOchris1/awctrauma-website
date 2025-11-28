@@ -9,7 +9,7 @@ export default function AdminPage() {
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [category, setCategory] = useState<FileCategory>('resident_guidelines')
+  const [category, setCategory] = useState<FileCategory>('cpgs')
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -67,7 +67,7 @@ export default function AdminPage() {
         setFile(null)
         setTitle('')
         setDescription('')
-        setCategory('resident_guidelines')
+        setCategory('cpgs')
         if (fileInputRef.current) fileInputRef.current.value = ''
       } else {
         throw new Error('Upload failed')
@@ -180,9 +180,10 @@ export default function AdminPage() {
             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
             disabled={uploading}
           >
-            <option value="resident_guidelines">Resident Guidelines</option>
             <option value="cpgs">Clinical Practice Guidelines</option>
+            <option value="resident_guidelines">Resident Guidelines</option>
             <option value="trauma_policies">Trauma Policies</option>
+            <option value="medical_student">Medical Student Resources</option>
             <option value="resources">Useful Links & Resources</option>
           </select>
         </div>

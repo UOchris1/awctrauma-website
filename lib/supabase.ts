@@ -18,7 +18,9 @@ export const supabase = supabaseUrl && supabaseAnonKey
     })
   : createClient('https://placeholder.supabase.co', 'placeholder-key')
 
-export type FileCategory = 'resident_guidelines' | 'cpgs' | 'trauma_policies' | 'resources'
+export type FileCategory = 'cpgs' | 'resident_guidelines' | 'trauma_policies' | 'medical_student' | 'resources'
+
+export type FileType = 'pdf' | 'docx' | 'doc'
 
 export interface FileRecord {
   id: string
@@ -27,4 +29,22 @@ export interface FileRecord {
   description?: string
   file_url: string
   category: FileCategory
+  file_type?: FileType
+  file_size?: number
+  updated_at?: string
+  original_filename?: string
+}
+
+export type IconType = 'ribs' | 'pelvis' | 'vascular' | 'spleen' | 'liver' | 'kidney' | 'airway' | 'brain' | 'endocrine' | 'heme' | 'ortho' | 'default'
+
+export interface AlgorithmRecord {
+  id: string
+  title: string
+  short_title: string
+  icon_type: IconType
+  image_url?: string
+  sort_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
