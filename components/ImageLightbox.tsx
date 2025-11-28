@@ -68,7 +68,7 @@ export default function ImageLightbox({ src, alt, isOpen, onClose }: ImageLightb
   }, [isOpen, handleKeyDown, resetTransform])
 
   // Calculate distance between two touch points
-  const getDistance = (touches: TouchList) => {
+  const getDistance = (touches: React.TouchList) => {
     if (touches.length < 2) return 0
     const dx = touches[0].clientX - touches[1].clientX
     const dy = touches[0].clientY - touches[1].clientY
@@ -76,7 +76,7 @@ export default function ImageLightbox({ src, alt, isOpen, onClose }: ImageLightb
   }
 
   // Get center point between two touches
-  const getCenter = (touches: TouchList) => {
+  const getCenter = (touches: React.TouchList) => {
     if (touches.length < 2) {
       return { x: touches[0].clientX, y: touches[0].clientY }
     }
