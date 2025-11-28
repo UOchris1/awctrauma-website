@@ -3,8 +3,8 @@ import AlgorithmsSection from '@/components/AlgorithmsSection'
 import TabbedDocuments from '@/components/TabbedDocuments'
 import GlobalSearch from '@/components/GlobalSearch'
 
-// Revalidate cache every 5 minutes
-export const revalidate = 300
+// Revalidate cache every 60 seconds
+export const revalidate = 60
 
 // External resource links
 const externalResources = [
