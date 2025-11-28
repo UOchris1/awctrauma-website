@@ -9,6 +9,7 @@ const CATEGORY_LABELS: Record<FileCategory, string> = {
   resident_guidelines: 'Resident Guidelines',
   cpgs: 'Clinical Practice Guidelines',
   trauma_policies: 'Trauma Policies',
+  medical_student: 'Medical Student',
   resources: 'Useful Links & Resources'
 }
 
