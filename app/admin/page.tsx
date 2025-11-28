@@ -29,9 +29,27 @@ interface Algorithm {
   is_active: boolean
 }
 
+interface FileRecord {
+  id: string
+  title: string
+  description?: string
+  file_url: string
+  category: FileCategory
+  file_type?: string
+  created_at: string
+}
+
+const CATEGORY_OPTIONS: { value: FileCategory; label: string }[] = [
+  { value: 'cpgs', label: 'Clinical Practice Guidelines' },
+  { value: 'resident_guidelines', label: 'Resident Guidelines' },
+  { value: 'trauma_policies', label: 'Trauma Policies' },
+  { value: 'medical_student', label: 'Medical Student Resources' },
+  { value: 'resources', label: 'Useful Links & Resources' }
+]
+
 export default function AdminPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'documents' | 'algorithms'>('documents')
+  const [activeTab, setActiveTab] = useState<'documents' | 'algorithms' | 'files'>('documents')
 
   // Document upload state
   const [file, setFile] = useState<File | null>(null)
@@ -61,16 +79,24 @@ export default function AdminPage() {
   const newAlgorithmImageRef = useRef<HTMLInputElement>(null)
   const [newAlgorithmImage, setNewAlgorithmImage] = useState<File | null>(null)
 
+  // Files management state
+  const [files, setFiles] = useState<FileRecord[]>([])
+  const [loadingFiles, setLoadingFiles] = useState(false)
+  const [editingFile, setEditingFile] = useState<FileRecord | null>(null)
+  const [savingFile, setSavingFile] = useState(false)
+
   const handleLogout = async () => {
     await fetch('/api/auth', { method: 'DELETE' })
     router.push('/login')
     router.refresh()
   }
 
-  // Fetch algorithms
+  // Fetch algorithms and files
   useEffect(() => {
     if (activeTab === 'algorithms') {
       fetchAlgorithms()
+    } else if (activeTab === 'files') {
+      fetchFiles()
     }
   }, [activeTab])
 
@@ -86,6 +112,21 @@ export default function AdminPage() {
       console.error('Failed to fetch algorithms:', error)
     } finally {
       setLoadingAlgorithms(false)
+    }
+  }
+
+  const fetchFiles = async () => {
+    setLoadingFiles(true)
+    try {
+      const res = await fetch('/api/files')
+      if (res.ok) {
+        const data = await res.json()
+        setFiles(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch files:', error)
+    } finally {
+      setLoadingFiles(false)
     }
   }
 
@@ -272,6 +313,54 @@ export default function AdminPage() {
     }
   }
 
+  // File management handlers
+  const handleUpdateFile = async (fileRecord: FileRecord) => {
+    setSavingFile(true)
+    try {
+      const res = await fetch(`/api/files/${fileRecord.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: fileRecord.title,
+          description: fileRecord.description,
+          category: fileRecord.category
+        })
+      })
+
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'File updated successfully!' })
+        setEditingFile(null)
+        fetchFiles()
+      } else {
+        throw new Error('Update failed')
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to update file' })
+    } finally {
+      setSavingFile(false)
+    }
+  }
+
+  const handleDeleteFile = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this file? This cannot be undone.')) return
+
+    try {
+      const res = await fetch(`/api/files/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'File deleted' })
+        fetchFiles()
+      } else {
+        throw new Error('Delete failed')
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to delete file' })
+    }
+  }
+
+  const getCategoryLabel = (cat: FileCategory) => {
+    return CATEGORY_OPTIONS.find(c => c.value === cat)?.label || cat
+  }
+
   return (
     <main className="container mx-auto max-w-4xl px-4 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -305,6 +394,16 @@ export default function AdminPage() {
           }`}
         >
           Manage Algorithms
+        </button>
+        <button
+          onClick={() => setActiveTab('files')}
+          className={`px-6 py-3 font-medium ${
+            activeTab === 'files'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Manage Files
         </button>
       </div>
 
@@ -625,6 +724,127 @@ export default function AdminPage() {
                         </button>
                         <button
                           onClick={() => handleDeleteAlgorithm(algo.id)}
+                          className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Files Management Tab */}
+      {activeTab === 'files' && (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Manage Uploaded Files</h2>
+            <p className="text-sm text-gray-500">{files.length} files</p>
+          </div>
+
+          {loadingFiles ? (
+            <div className="text-center py-8 text-gray-500">Loading files...</div>
+          ) : files.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">No files uploaded yet</div>
+          ) : (
+            <div className="space-y-4">
+              {files.map((fileRecord) => (
+                <div
+                  key={fileRecord.id}
+                  className="border rounded-lg p-4 border-gray-200"
+                >
+                  {editingFile?.id === fileRecord.id ? (
+                    // Edit mode
+                    <div>
+                      <div className="grid grid-cols-1 gap-4 mb-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Title</label>
+                          <input
+                            type="text"
+                            value={editingFile.title}
+                            onChange={(e) => setEditingFile({ ...editingFile, title: e.target.value })}
+                            className="w-full p-2 border rounded"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Description</label>
+                          <textarea
+                            value={editingFile.description || ''}
+                            onChange={(e) => setEditingFile({ ...editingFile, description: e.target.value })}
+                            className="w-full p-2 border rounded"
+                            rows={2}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Category</label>
+                          <select
+                            value={editingFile.category}
+                            onChange={(e) => setEditingFile({ ...editingFile, category: e.target.value as FileCategory })}
+                            className="w-full p-2 border rounded"
+                          >
+                            {CATEGORY_OPTIONS.map(opt => (
+                              <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleUpdateFile(editingFile)}
+                          disabled={savingFile}
+                          className="px-4 py-2 bg-primary text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                        >
+                          {savingFile ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={() => setEditingFile(null)}
+                          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // View mode
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium truncate">{fileRecord.title}</h3>
+                        {fileRecord.description && (
+                          <p className="text-sm text-gray-500 truncate">{fileRecord.description}</p>
+                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                            {getCategoryLabel(fileRecord.category)}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {fileRecord.file_type?.toUpperCase()}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {new Date(fileRecord.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-4">
+                        <a
+                          href={fileRecord.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                        >
+                          View
+                        </a>
+                        <button
+                          onClick={() => setEditingFile(fileRecord)}
+                          className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteFile(fileRecord.id)}
                           className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
                         >
                           Delete
