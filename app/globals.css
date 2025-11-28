@@ -4,11 +4,18 @@
 
 @layer base {
   body {
-    @apply bg-silver-100 text-primary-900 min-h-screen antialiased;
+    /* Gemini: cooler silver-100 background + navy-900 text */
+    @apply bg-silver-100 text-navy-900 min-h-screen antialiased;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight text-primary-900;
+    /* Gemini: navy-950 for strong heading hierarchy */
+    @apply font-semibold tracking-tight text-navy-950;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
   }
 }
 
@@ -16,13 +23,64 @@
   .card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
   }
-  
+
+  /* Gemini: refreshed gradient using primary colors */
   .gradient-text {
-    @apply bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent;
   }
-  
+
+  /* Gemini: cooler section pattern using silver-300 (slate-300) */
   .section-pattern {
-    background-image: radial-gradient(circle at 1px 1px, rgb(229 231 235 / 40%) 1px, transparent 1px);
+    background-image: radial-gradient(circle at 1px 1px, rgb(203 213 225 / 40%) 1px, transparent 1px);
     background-size: 40px 40px;
+  }
+
+  /* Button variants */
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm;
+  }
+
+  .btn-secondary {
+    @apply bg-silver-200 hover:bg-silver-300 text-navy-700 px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+
+  /* Focus ring utilities */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.silver.400') transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.silver.400');
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: theme('colors.silver.500');
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+
+  .glass-dark {
+    @apply bg-navy-900/80 backdrop-blur-md;
   }
 }

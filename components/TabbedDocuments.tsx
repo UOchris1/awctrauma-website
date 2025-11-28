@@ -67,7 +67,7 @@ const FileTypeIcon = ({ fileType }: { fileType?: string }) => {
     return (
       <div className="w-8 h-8 rounded bg-blue-100 flex items-center justify-center">
         <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zM8 17v-1h2v1H8zm0-3v-1h2v1H8zm0-3v-1h2v1H8zm8 6v-1h-4v1h4zm0-3v-1h-4v1h4z"/>
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zM8 17v-1h2v1H8zm0-3v-1h2v1H8zm0-3v-1h2v1H8zm8 6v-1h-4v1h4zm0-3v-1h-4v1h4z" />
         </svg>
       </div>
     )
@@ -75,7 +75,7 @@ const FileTypeIcon = ({ fileType }: { fileType?: string }) => {
   return (
     <div className="w-8 h-8 rounded bg-red-100 flex items-center justify-center">
       <svg className="w-4 h-4 text-red-600" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zM8 17v-2h3v2H8zm0-4v-2h8v2H8z"/>
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zM8 17v-2h3v2H8zm0-4v-2h8v2H8z" />
       </svg>
     </div>
   )
@@ -91,27 +91,28 @@ export default function TabbedDocuments({ files }: TabbedDocumentsProps) {
   )
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      {/* Tab Navigation */}
-      <div className="border-b border-gray-200 bg-gray-50">
+    // Gemini's silver-based borders and shadow
+    <div className="bg-white rounded-xl shadow-md border border-silver-200 overflow-hidden">
+      {/* Tab Navigation - Gemini's silver background */}
+      <div className="border-b border-silver-200 bg-silver-50">
         <div className="flex overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                activeTab === tab.id
-                  ? 'border-navy-600 text-navy-600 bg-white'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all ${activeTab === tab.id
+                  // Active: Primary blue (Gemini's brand consistency)
+                  ? 'border-primary-600 text-primary-700 bg-primary-50/50'
+                  // Inactive: Silver palette
+                  : 'border-transparent text-silver-600 hover:text-silver-800 hover:border-silver-300 hover:bg-silver-100'
+                }`}
             >
               <TabIcon type={tab.icon} />
               <span>{tab.label}</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                activeTab === tab.id
-                  ? 'bg-navy-100 text-navy-700'
-                  : 'bg-gray-200 text-gray-600'
-              }`}>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-colors ${activeTab === tab.id
+                  ? 'bg-primary-100 text-primary-700'
+                  : 'bg-silver-200 text-silver-600'
+                }`}>
                 {files[tab.id].length}
               </span>
             </button>
@@ -119,18 +120,18 @@ export default function TabbedDocuments({ files }: TabbedDocumentsProps) {
         </div>
       </div>
 
-      {/* Search within tab */}
-      <div className="p-4 border-b border-gray-100">
+      {/* Search within tab - Gemini's styling */}
+      <div className="p-4 border-b border-silver-100">
         <div className="relative">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`Search ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()}...`}
-            className="w-full px-4 py-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-navy-200 focus:border-navy-400 text-sm"
+            className="w-full px-4 py-2 pl-10 rounded-lg border border-silver-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
           />
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-silver-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -145,14 +146,14 @@ export default function TabbedDocuments({ files }: TabbedDocumentsProps) {
         </div>
       </div>
 
-      {/* File List */}
-      <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+      {/* File List - Gemini's silver dividers */}
+      <div className="divide-y divide-silver-100 max-h-96 overflow-y-auto">
         {currentFiles.length === 0 ? (
           <div className="p-8 text-center">
-            <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-12 h-12 mx-auto text-silver-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-gray-500 text-sm">
+            <p className="text-silver-600 text-sm">
               {searchQuery ? 'No documents match your search' : 'No documents in this category'}
             </p>
           </div>
@@ -161,20 +162,21 @@ export default function TabbedDocuments({ files }: TabbedDocumentsProps) {
             <a
               key={file.id}
               href={`/viewer/${file.id}`}
-              className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors group"
+              className="flex items-center gap-4 p-4 hover:bg-silver-50 transition-colors group"
             >
               <FileTypeIcon fileType={file.file_type} />
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-medium text-gray-900 truncate group-hover:text-navy-600 transition-colors">
+                {/* Navy text with primary hover */}
+                <h4 className="text-sm font-medium text-navy-900 truncate group-hover:text-primary-600 transition-colors">
                   {file.title}
                 </h4>
                 {file.description && (
-                  <p className="text-xs text-gray-500 truncate mt-0.5">
+                  <p className="text-xs text-silver-600 truncate mt-0.5">
                     {file.description}
                   </p>
                 )}
               </div>
-              <svg className="w-4 h-4 text-gray-400 group-hover:text-navy-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-silver-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </a>

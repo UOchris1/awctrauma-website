@@ -104,7 +104,7 @@ export default function GlobalSearch({ files, algorithms }: GlobalSearchProps) {
 
   const navigateToResult = (result: SearchResult) => {
     if (result.type === 'algorithm') {
-      // Scroll to algorithm section and trigger lightbox
+      // Scroll to algorithm section
       const element = document.getElementById('algorithms')
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' })
@@ -121,7 +121,8 @@ export default function GlobalSearch({ files, algorithms }: GlobalSearchProps) {
       resident_guidelines: 'Guidelines',
       cpgs: 'CPGs',
       trauma_policies: 'Policies',
-      resources: 'Resources'
+      resources: 'Resources',
+      medical_student: 'Medical Student',
     }
     return category ? labels[category] || category : ''
   }
@@ -137,10 +138,11 @@ export default function GlobalSearch({ files, algorithms }: GlobalSearchProps) {
           onKeyDown={handleKeyDown}
           onFocus={() => results.length > 0 && setIsOpen(true)}
           placeholder="Search algorithms, guidelines, policies..."
-          className="w-full px-4 py-3 pl-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/15 transition-all"
+          // Gemini's styling: teal focus ring for high visibility
+          className="w-full px-4 py-3 pl-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-accent-teal/70 focus:bg-white/15 transition-all shadow-lg"
         />
         <svg
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -159,7 +161,7 @@ export default function GlobalSearch({ files, algorithms }: GlobalSearchProps) {
               setIsOpen(false)
               inputRef.current?.focus()
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -168,24 +170,23 @@ export default function GlobalSearch({ files, algorithms }: GlobalSearchProps) {
         )}
       </div>
 
-      {/* Results dropdown */}
+      {/* Results dropdown - Gemini's silver styling */}
       {isOpen && (
         <div
           ref={resultsRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50"
+          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-silver-200 overflow-hidden z-50"
         >
           {results.map((result, index) => (
             <button
               key={`${result.type}-${result.id}`}
               onClick={() => navigateToResult(result)}
-              className={`w-full px-4 py-3 flex items-center gap-3 text-left transition-colors ${
-                index === selectedIndex ? 'bg-navy-50' : 'hover:bg-gray-50'
-              }`}
+              // Gemini: primary-50 selected, silver-50 hover
+              className={`w-full px-4 py-3 flex items-center gap-3 text-left transition-colors ${index === selectedIndex ? 'bg-primary-50' : 'hover:bg-silver-50'
+                }`}
             >
-              {/* Icon */}
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                result.type === 'algorithm' ? 'bg-navy-100 text-navy-600' : 'bg-gray-100 text-gray-600'
-              }`}>
+              {/* Icon - primary for algorithms, silver for files */}
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${result.type === 'algorithm' ? 'bg-primary-100 text-primary-600' : 'bg-silver-100 text-silver-600'
+                }`}>
                 {result.type === 'algorithm' ? (
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
@@ -197,18 +198,18 @@ export default function GlobalSearch({ files, algorithms }: GlobalSearchProps) {
                 )}
               </div>
 
-              {/* Content */}
+              {/* Content - navy/silver text colors */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-navy-900 truncate">
                   {result.title}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-silver-600">
                   {result.type === 'algorithm' ? 'Quick Reference Algorithm' : getCategoryLabel(result.category)}
                 </p>
               </div>
 
               {/* Arrow */}
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-silver-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>

@@ -2,33 +2,42 @@ import Image from 'next/image'
 
 export default function Header() {
   return (
-    <header className="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-700 text-white">
-      <div className="container mx-auto max-w-6xl px-4 py-4">
+    // Gemini's gradient: navy to primary blend for professional look
+    <header className="bg-gradient-to-r from-navy-900 via-navy-800/95 to-primary-900 text-white shadow-lg border-b border-white/10 relative overflow-hidden">
+      {/* Grid pattern with increased opacity (Gemini) */}
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.05]"></div>
+
+      <div className="container mx-auto max-w-6xl px-4 py-4 relative z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="flex-shrink-0">
               <Image
-                src="/logo_01.png"
+                src="/logo_02.jpg"
                 alt="Abrazo West Campus Logo"
                 width={56}
                 height={56}
-                className="rounded-lg"
+                className="rounded-lg shadow-md"
               />
             </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-white">
+              <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">
                 Abrazo West Campus
               </h1>
-              <p className="text-sm text-white/80">
-                Level <span className="text-yellow-400 font-semibold">1</span> Trauma Center Resources
+              {/* Gemini's silver-300 + accent-gold for "1" */}
+              <p className="text-sm text-silver-300 font-medium">
+                Level <span className="text-accent-gold font-bold">1</span> Trauma Center Resources
               </p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center space-x-2 text-sm bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>24/7 Resource Portal</span>
+
+          {/* 24/7 indicator with Opus's animated ping + Gemini's styling */}
+          <div className="hidden sm:flex items-center space-x-2 text-sm bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 shadow-sm hover:bg-white/20 transition-all cursor-default">
+            {/* Opus's animated ping indicator */}
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-teal opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-teal"></span>
+            </span>
+            <span className="font-medium text-silver-100">24/7 Resource Portal</span>
           </div>
         </div>
       </div>
