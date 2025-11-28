@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS algorithms (
   title TEXT NOT NULL,
   short_title TEXT NOT NULL,
   icon_type TEXT NOT NULL DEFAULT 'default',
+  image_url TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
