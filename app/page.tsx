@@ -104,7 +104,7 @@ export default async function HomePage() {
       {/* Quick Reference Algorithms */}
       <div id="algorithms" className="bg-white py-10 border-b border-gray-200">
         <div className="container mx-auto max-w-5xl px-4">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Reference Algorithms</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Reference Algorithms & Charts</h2>
           {algorithmsForDisplay.length > 0 ? (
             <AlgorithmsSection algorithms={algorithmsForDisplay} />
           ) : (
