@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { FileCategory, IconType } from '@/lib/supabase'
+import { FileCategory, IconType, CardColor } from '@/lib/supabase'
 
 const ICON_OPTIONS: { value: IconType; label: string }[] = [
   { value: 'ribs', label: 'Ribs (Ortho)' },
@@ -19,11 +19,25 @@ const ICON_OPTIONS: { value: IconType; label: string }[] = [
   { value: 'default', label: 'Default' }
 ]
 
+const COLOR_OPTIONS: { value: CardColor; label: string; colorClass: string }[] = [
+  { value: 'auto', label: 'Auto (based on icon)', colorClass: 'bg-gray-400' },
+  { value: 'blue', label: 'Blue (Ortho)', colorClass: 'bg-blue-600' },
+  { value: 'rose', label: 'Rose (Vascular)', colorClass: 'bg-rose-500' },
+  { value: 'emerald', label: 'Emerald (Solid Organ)', colorClass: 'bg-emerald-500' },
+  { value: 'amber', label: 'Amber (Endocrine)', colorClass: 'bg-amber-500' },
+  { value: 'sky', label: 'Sky (Airway)', colorClass: 'bg-sky-500' },
+  { value: 'indigo', label: 'Indigo (Neuro)', colorClass: 'bg-indigo-600' },
+  { value: 'purple', label: 'Purple', colorClass: 'bg-purple-600' },
+  { value: 'teal', label: 'Teal', colorClass: 'bg-teal-500' },
+  { value: 'orange', label: 'Orange', colorClass: 'bg-orange-500' }
+]
+
 interface Algorithm {
   id: string
   title: string
   short_title: string
   icon_type: IconType
+  card_color: CardColor
   image_url: string | null
   sort_order: number
   is_active: boolean
@@ -73,6 +87,7 @@ export default function AdminPage() {
     title: '',
     short_title: '',
     icon_type: 'default' as IconType,
+    card_color: 'auto' as CardColor,
     sort_order: 0
   })
   const [showNewForm, setShowNewForm] = useState(false)
@@ -271,7 +286,7 @@ export default function AdminPage() {
       if (res.ok) {
         setMessage({ type: 'success', text: 'Algorithm created successfully!' })
         setShowNewForm(false)
-        setNewAlgorithm({ title: '', short_title: '', icon_type: 'default', sort_order: 0 })
+        setNewAlgorithm({ title: '', short_title: '', icon_type: 'default', card_color: 'auto', sort_order: 0 })
         setNewAlgorithmImage(null)
         fetchAlgorithms()
       } else {
@@ -332,10 +347,11 @@ export default function AdminPage() {
         setEditingFile(null)
         fetchFiles()
       } else {
-        throw new Error('Update failed')
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Update failed')
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to update file' })
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to update file' })
     } finally {
       setSavingFile(false)
     }
@@ -577,6 +593,26 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Card Color</label>
+                <div className="flex flex-wrap gap-2">
+                  {COLOR_OPTIONS.map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setNewAlgorithm({ ...newAlgorithm, card_color: opt.value })}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded border-2 transition-all ${
+                        newAlgorithm.card_color === opt.value
+                          ? 'border-gray-800 ring-2 ring-gray-300'
+                          : 'border-transparent hover:border-gray-300'
+                      }`}
+                    >
+                      <span className={`w-4 h-4 rounded-full ${opt.colorClass}`}></span>
+                      <span className="text-sm">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Flowchart Image</label>
                 <input
                   ref={newAlgorithmImageRef}
@@ -651,6 +687,26 @@ export default function AdminPage() {
                             onChange={(e) => setEditingAlgorithm({ ...editingAlgorithm, sort_order: parseInt(e.target.value) || 0 })}
                             className="w-full p-2 border rounded"
                           />
+                        </div>
+                      </div>
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium mb-2">Card Color</label>
+                        <div className="flex flex-wrap gap-2">
+                          {COLOR_OPTIONS.map(opt => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => setEditingAlgorithm({ ...editingAlgorithm, card_color: opt.value })}
+                              className={`flex items-center gap-2 px-3 py-1.5 rounded border-2 transition-all ${
+                                editingAlgorithm.card_color === opt.value
+                                  ? 'border-gray-800 ring-2 ring-gray-300'
+                                  : 'border-transparent hover:border-gray-300'
+                              }`}
+                            >
+                              <span className={`w-4 h-4 rounded-full ${opt.colorClass}`}></span>
+                              <span className="text-sm">{opt.label}</span>
+                            </button>
+                          ))}
                         </div>
                       </div>
                       <div className="mb-4">

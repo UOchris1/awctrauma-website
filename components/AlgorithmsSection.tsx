@@ -82,6 +82,7 @@ const icons = {
 }
 
 type IconType = keyof typeof icons
+type CardColor = 'auto' | 'blue' | 'rose' | 'emerald' | 'amber' | 'sky' | 'indigo' | 'purple' | 'teal' | 'orange'
 
 interface Algorithm {
   id: string
@@ -89,6 +90,7 @@ interface Algorithm {
   shortTitle: string
   imageSrc: string
   iconType: IconType
+  cardColor?: CardColor
 }
 
 interface AlgorithmsSectionProps {
@@ -157,6 +159,37 @@ const colorStyles = {
   }
 }
 
+// Custom color overrides (when user picks a specific color)
+const customColorStyles: Record<Exclude<CardColor, 'auto'>, typeof colorStyles.ortho> = {
+  blue: colorStyles.ortho,
+  rose: colorStyles.vascular,
+  emerald: colorStyles.solid,
+  amber: colorStyles.endocrine,
+  sky: colorStyles.airway,
+  indigo: colorStyles.neuro,
+  purple: {
+    cardHover: 'hover:shadow-lg focus:ring-purple-200/50',
+    iconBg: 'bg-purple-100 group-hover:bg-purple-200',
+    iconText: 'text-purple-700',
+    button: 'bg-purple-600 hover:bg-purple-700',
+    borderTop: 'border-t-purple-600'
+  },
+  teal: {
+    cardHover: 'hover:shadow-lg focus:ring-teal-200/50',
+    iconBg: 'bg-teal-100 group-hover:bg-teal-200',
+    iconText: 'text-teal-700',
+    button: 'bg-teal-600 hover:bg-teal-700',
+    borderTop: 'border-t-teal-500'
+  },
+  orange: {
+    cardHover: 'hover:shadow-lg focus:ring-orange-200/50',
+    iconBg: 'bg-orange-100 group-hover:bg-orange-200',
+    iconText: 'text-orange-700',
+    button: 'bg-orange-600 hover:bg-orange-700',
+    borderTop: 'border-t-orange-500'
+  }
+}
+
 export default function AlgorithmsSection({ algorithms }: AlgorithmsSectionProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm | null>(null)
@@ -171,8 +204,11 @@ export default function AlgorithmsSection({ algorithms }: AlgorithmsSectionProps
       {/* Updated grid layout with better gap (Gemini) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
         {algorithms.map((algorithm) => {
+          // Use custom color if set, otherwise auto-detect from icon
           const category = categoryMap[algorithm.iconType] || 'neuro'
-          const styles = colorStyles[category]
+          const styles = algorithm.cardColor && algorithm.cardColor !== 'auto'
+            ? customColorStyles[algorithm.cardColor]
+            : colorStyles[category]
 
           return (
             <button

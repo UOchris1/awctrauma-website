@@ -79,7 +79,8 @@ export default async function HomePage() {
     title: algo.title,
     shortTitle: algo.short_title,
     imageSrc: algo.image_url || '/flowcharts/placeholder.png',
-    iconType: algo.icon_type
+    iconType: algo.icon_type,
+    cardColor: algo.card_color || 'auto'
   }))
 
   return (

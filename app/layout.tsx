@@ -7,13 +7,36 @@ import Footer from '@/components/Footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Abrazo West Trauma Center Resources',
-  description: 'Access resident guidelines, clinical practice guidelines, and trauma policies for Abrazo West Campus Level 1 Trauma Center.',
-  keywords: 'trauma center, medical resources, clinical guidelines, Abrazo West, resident guidelines, CPGs, trauma policies',
+  title: 'Level 1 Trauma Center Resources',
+  description: 'Access resident guidelines, clinical practice guidelines, and trauma policies for Level 1 Trauma Center.',
+  keywords: 'trauma center, medical resources, clinical guidelines, resident guidelines, CPGs, trauma policies, Level 1 trauma',
+  icons: {
+    icon: [
+      { url: '/logo.jpg', type: 'image/jpeg' },
+    ],
+    apple: [
+      { url: '/logo.jpg' },
+    ],
+  },
   openGraph: {
-    title: 'Abrazo West Trauma Center Resources',
-    description: 'Professional resource portal for medical staff',
+    title: 'Level 1 Trauma Center Resources',
+    description: 'Professional resource portal for Level 1 Trauma Center medical staff. Access clinical guidelines, algorithms, and policies.',
     type: 'website',
+    siteName: 'Level 1 Trauma Resources',
+    images: [
+      {
+        url: '/logo.jpg',
+        width: 512,
+        height: 512,
+        alt: 'Level 1 Trauma Center Resources',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Level 1 Trauma Center Resources',
+    description: 'Professional resource portal for Level 1 Trauma Center medical staff.',
+    images: ['/logo.jpg'],
   },
   robots: {
     index: true,

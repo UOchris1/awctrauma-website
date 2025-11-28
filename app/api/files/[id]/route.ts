@@ -82,11 +82,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       if (error.code === 'PGRST116') {
         return NextResponse.json({ error: 'File not found' }, { status: 404 })
       }
-      console.error('Database error:', error)
+      console.error('Database error:', error.message, error.code, error.details)
       return NextResponse.json(
-        { error: 'Failed to update file' },
+        { error: `Failed to update file: ${error.message}` },
         { status: 500 }
       )
+    }
+
+    // If no data returned but no error, the update didn't match any rows
+    if (!data) {
+      return NextResponse.json({ error: 'File not found or update failed' }, { status: 404 })
     }
 
     return NextResponse.json({ file: data })

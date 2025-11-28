@@ -13,7 +13,7 @@ export default function Header() {
             <div className="flex-shrink-0">
               <Image
                 src="/logo_02.jpg"
-                alt="Abrazo West Campus Logo"
+                alt="Level 1 Trauma Center Logo"
                 width={56}
                 height={56}
                 className="rounded-lg shadow-md"
@@ -21,12 +21,8 @@ export default function Header() {
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">
-                Abrazo West Campus
+                Level <span className="text-accent-gold">1</span> Trauma
               </h1>
-              {/* Gemini's silver-300 + accent-gold for "1" */}
-              <p className="text-sm text-silver-300 font-medium">
-                Level <span className="text-accent-gold font-bold">1</span> Trauma Center Resources
-              </p>
             </div>
           </div>
 

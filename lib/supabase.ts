@@ -37,11 +37,14 @@ export interface FileRecord {
 
 export type IconType = 'ribs' | 'pelvis' | 'vascular' | 'spleen' | 'liver' | 'kidney' | 'airway' | 'brain' | 'endocrine' | 'heme' | 'ortho' | 'default'
 
+export type CardColor = 'auto' | 'blue' | 'rose' | 'emerald' | 'amber' | 'sky' | 'indigo' | 'purple' | 'teal' | 'orange'
+
 export interface AlgorithmRecord {
   id: string
   title: string
   short_title: string
   icon_type: IconType
+  card_color?: CardColor
   image_url?: string
   sort_order: number
   is_active: boolean
