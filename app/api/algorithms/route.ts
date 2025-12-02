@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, short_title, icon_type, image_url, sort_order } = body
+    const { title, short_title, icon_type, card_color, image_url, sort_order } = body
 
     if (!title || !short_title) {
       return NextResponse.json({ error: 'Title and short_title are required' }, { status: 400 })
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
         title,
         short_title,
         icon_type: icon_type || 'default',
+        card_color: card_color || 'auto',
         image_url: image_url || null,
         sort_order: sort_order || 0,
         is_active: true

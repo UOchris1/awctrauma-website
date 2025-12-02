@@ -41,12 +41,13 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { title, short_title, icon_type, image_url, sort_order, is_active } = body
+    const { title, short_title, icon_type, card_color, image_url, sort_order, is_active } = body
 
     const updateData: Record<string, unknown> = {}
     if (title !== undefined) updateData.title = title
     if (short_title !== undefined) updateData.short_title = short_title
     if (icon_type !== undefined) updateData.icon_type = icon_type
+    if (card_color !== undefined) updateData.card_color = card_color
     if (image_url !== undefined) updateData.image_url = image_url
     if (sort_order !== undefined) updateData.sort_order = sort_order
     if (is_active !== undefined) updateData.is_active = is_active
