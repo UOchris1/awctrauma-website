@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { FileCategory, IconType, CardColor } from '@/lib/supabase'
 
 const ICON_OPTIONS: { value: IconType; label: string }[] = [
@@ -381,12 +382,20 @@ export default function AdminPage() {
     <main className="container mx-auto max-w-4xl px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Admin Portal</h1>
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
-        >
-          Logout
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/handouts"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-blue-700 transition"
+          >
+            Handout Editor
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

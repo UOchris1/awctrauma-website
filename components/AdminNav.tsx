@@ -6,7 +6,8 @@ import { usePathname } from 'next/navigation'
 const navItems = [
   { href: '/admin', label: 'Upload', icon: 'upload' },
   { href: '/admin/manage', label: 'Manage Files', icon: 'folder' },
-  { href: '/admin/algorithms', label: 'Algorithms', icon: 'flowchart' }
+  { href: '/admin/algorithms', label: 'Algorithms', icon: 'flowchart' },
+  { href: '/admin/handouts', label: 'Handouts', icon: 'document' }
 ]
 
 export default function AdminNav() {
@@ -39,6 +40,12 @@ export default function AdminNav() {
             {item.icon === 'flowchart' && (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+              </svg>
+            )}
+            {item.icon === 'document' && (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 3v5h5M9 13h6M9 17h6M9 9h2" />
               </svg>
             )}
             {item.label}

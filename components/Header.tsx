@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function Header() {
   return (
@@ -26,14 +27,27 @@ export default function Header() {
             </div>
           </div>
 
-          {/* 24/7 indicator with Opus's animated ping + Gemini's styling */}
-          <div className="hidden sm:flex items-center space-x-2 text-sm bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 shadow-sm hover:bg-white/20 transition-all cursor-default">
-            {/* Opus's animated ping indicator */}
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-teal opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-teal"></span>
-            </span>
-            <span className="font-medium text-silver-100">24/7 Resource Portal</span>
+          <div className="flex items-center space-x-2">
+            <Link
+              href="/"
+              className="hidden sm:inline-flex text-sm bg-white/10 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/20 hover:bg-white/20 transition-all text-silver-100"
+            >
+              Resources
+            </Link>
+            <Link
+              href="/sicu-deliverables"
+              className="inline-flex text-sm bg-primary-600 rounded-full px-3 py-1.5 border border-primary-500 hover:bg-primary-500 transition-all text-white font-medium"
+            >
+              Quick Guides
+            </Link>
+            {/* 24/7 indicator */}
+            <div className="hidden md:flex items-center space-x-2 text-sm bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 shadow-sm hover:bg-white/20 transition-all cursor-default">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-teal opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-teal"></span>
+              </span>
+              <span className="font-medium text-silver-100">24/7 Resource Portal</span>
+            </div>
           </div>
         </div>
       </div>
