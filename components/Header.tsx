@@ -10,7 +10,7 @@ export default function Header() {
   const isHome = pathname === '/'
 
   const activeStyle = 'bg-primary-600 border-primary-500 text-white font-medium shadow-md'
-  const inactiveStyle = 'bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 text-silver-100'
+  const inactiveStyle = 'bg-primary-600/60 border-primary-400/40 hover:bg-primary-600/80 text-white/90'
 
   return (
     <header className="bg-gradient-to-r from-navy-900 via-navy-800/95 to-primary-900 text-white shadow-lg border-b border-white/10 relative overflow-hidden">
