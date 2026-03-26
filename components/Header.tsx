@@ -1,7 +1,17 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export default function Header() {
+  const pathname = usePathname()
+  const isQuickGuides = pathname === '/sicu-deliverables' || pathname.startsWith('/sicu-deliverables/')
+  const isHome = pathname === '/'
+
+  const activeStyle = 'bg-primary-600 border-primary-500 text-white font-medium'
+  const inactiveStyle = 'bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 text-silver-100'
+
   return (
     // Gemini's gradient: navy to primary blend for professional look
     <header className="bg-gradient-to-r from-navy-900 via-navy-800/95 to-primary-900 text-white shadow-lg border-b border-white/10 relative overflow-hidden">
@@ -29,14 +39,14 @@ export default function Header() {
 
           <div className="flex items-center space-x-2">
             <Link
-              href="/sicu-deliverables"
-              className="hidden sm:inline-flex text-sm bg-white/10 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/20 hover:bg-white/20 transition-all text-silver-100"
+              href="/#documents"
+              className={`hidden sm:inline-flex text-sm rounded-full px-3 py-1.5 border transition-all ${isHome ? activeStyle : inactiveStyle}`}
             >
               Resources
             </Link>
             <Link
               href="/sicu-deliverables"
-              className="inline-flex text-sm bg-primary-600 rounded-full px-3 py-1.5 border border-primary-500 hover:bg-primary-500 transition-all text-white font-medium"
+              className={`inline-flex text-sm rounded-full px-3 py-1.5 border transition-all ${isQuickGuides ? activeStyle : inactiveStyle}`}
             >
               Quick Guides
             </Link>

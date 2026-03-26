@@ -120,7 +120,7 @@ export default async function HomePage() {
       </div>
 
       {/* Guidelines & Documents with Tabs */}
-      <div id="guidelines" className="bg-gray-50 py-10">
+      <div id="documents" className="bg-gray-50 py-10">
         <div className="container mx-auto max-w-5xl px-4">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Guidelines & Documents</h2>
           <TabbedDocuments files={categorizedFiles} />
