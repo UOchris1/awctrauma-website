@@ -29,7 +29,7 @@ export default function Header() {
 
           <div className="flex items-center space-x-2">
             <Link
-              href="/"
+              href="/sicu-deliverables"
               className="hidden sm:inline-flex text-sm bg-white/10 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/20 hover:bg-white/20 transition-all text-silver-100"
             >
               Resources

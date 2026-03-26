@@ -1,11 +1,13 @@
 export type HandoutPreviewType = 'markdown' | 'docx' | 'pdf'
 export type HandoutGroup =
   | 'Infection Prevention'
+  | 'Catheter Management'
   | 'Ventilator Care'
   | 'VTE and Anticoagulation'
   | 'Perioperative'
   | 'Special Populations'
   | 'Orthopaedic Trauma'
+  | 'Quality & Research'
 
 export interface HandoutAsset {
   label: string
@@ -179,13 +181,58 @@ export const sicuHandouts: SICUHandout[] = [
   },
   {
     slug: 'metrics-dictionary',
-    group: 'VTE and Anticoagulation',
+    group: 'Quality & Research',
     title: 'CAUTI/VAP/UE Metrics Dictionary',
     summary: 'Operational definitions, numerators, and denominators for reporting.',
     previewType: 'markdown',
     previewPath: `${basePath}/2026-02-26_metrics-dictionary_cauti-vap-ue.md`,
     assets: [
       { label: 'Markdown', path: `${basePath}/2026-02-26_metrics-dictionary_cauti-vap-ue.md` }
+    ]
+  },
+  {
+    slug: 'foley-cauti-evidence-summary',
+    group: 'Catheter Management',
+    title: 'Foley/CAUTI Evidence Summary',
+    summary: 'Comprehensive evidence review for catheter-associated UTI prevention strategies.',
+    previewType: 'markdown',
+    previewPath: `${basePath}/2026-02-22_foley-cauti_evidence-summary.md`,
+    assets: [
+      { label: 'Markdown', path: `${basePath}/2026-02-22_foley-cauti_evidence-summary.md` }
+    ]
+  },
+  {
+    slug: 'foley-management-guideline',
+    group: 'Catheter Management',
+    title: 'Foley Management Guideline',
+    summary: 'Clinical guideline for urinary catheter insertion, maintenance, and removal criteria.',
+    previewType: 'markdown',
+    previewPath: `${basePath}/2026-02-22_foley-management_guideline.md`,
+    assets: [
+      { label: 'Markdown', path: `${basePath}/2026-02-22_foley-management_guideline.md` }
+    ]
+  },
+  {
+    slug: 'foley-management-quick-guide',
+    group: 'Catheter Management',
+    title: 'Foley Management Quick Guide',
+    summary: 'Pocket reference for catheter indications, daily assessment, and removal triggers.',
+    previewType: 'markdown',
+    previewPath: `${basePath}/2026-02-22_foley-management_quick-guide.md`,
+    assets: [
+      { label: 'Markdown', path: `${basePath}/2026-02-22_foley-management_quick-guide.md` }
+    ]
+  },
+  {
+    slug: 'research-deliverables-plan',
+    group: 'Quality & Research',
+    title: 'CAUTI/VAP/UE Research Deliverables Plan',
+    summary: 'Project plan and deliverable timeline for SICU quality improvement initiatives.',
+    previewType: 'markdown',
+    previewPath: `${basePath}/2026-02-26_cauti-vap-ue_research-deliverables-plan.md`,
+    assets: [
+      { label: 'Markdown', path: `${basePath}/2026-02-26_cauti-vap-ue_research-deliverables-plan.md` },
+      { label: 'DOCX', path: `${basePath}/2026-02-26_cauti-vap-ue_research-deliverables-plan.docx` }
     ]
   }
 ]
