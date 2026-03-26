@@ -9,18 +9,16 @@ export default function Header() {
   const isQuickGuides = pathname === '/sicu-deliverables' || pathname.startsWith('/sicu-deliverables/')
   const isHome = pathname === '/'
 
-  const activeStyle = 'bg-primary-600 border-primary-500 text-white font-medium'
+  const activeStyle = 'bg-primary-600 border-primary-500 text-white font-medium shadow-md'
   const inactiveStyle = 'bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 text-silver-100'
 
   return (
-    // Gemini's gradient: navy to primary blend for professional look
     <header className="bg-gradient-to-r from-navy-900 via-navy-800/95 to-primary-900 text-white shadow-lg border-b border-white/10 relative overflow-hidden">
-      {/* Grid pattern with increased opacity (Gemini) */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.05]"></div>
 
       <div className="container mx-auto max-w-6xl px-4 py-4 relative z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <Link href="/" className="flex items-center space-x-4 hover:opacity-90 transition-opacity">
             <div className="flex-shrink-0">
               <Image
                 src="/logo_02.jpg"
@@ -35,30 +33,22 @@ export default function Header() {
                 Level <span className="text-accent-gold">1</span> Trauma
               </h1>
             </div>
-          </div>
+          </Link>
 
-          <div className="flex items-center space-x-2">
+          <nav className="flex items-center space-x-2">
             <Link
               href="/#documents"
-              className={`hidden sm:inline-flex text-sm rounded-full px-3 py-1.5 border transition-all ${isHome ? activeStyle : inactiveStyle}`}
+              className={`text-sm rounded-full px-4 py-2 border transition-all ${isHome ? activeStyle : inactiveStyle}`}
             >
-              Resources
+              Algorithms & Docs
             </Link>
             <Link
               href="/sicu-deliverables"
-              className={`inline-flex text-sm rounded-full px-3 py-1.5 border transition-all ${isQuickGuides ? activeStyle : inactiveStyle}`}
+              className={`text-sm rounded-full px-4 py-2 border transition-all ${isQuickGuides ? activeStyle : inactiveStyle}`}
             >
               Quick Guides
             </Link>
-            {/* 24/7 indicator */}
-            <div className="hidden md:flex items-center space-x-2 text-sm bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 shadow-sm hover:bg-white/20 transition-all cursor-default">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-teal opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-teal"></span>
-              </span>
-              <span className="font-medium text-silver-100">24/7 Resource Portal</span>
-            </div>
-          </div>
+          </nav>
         </div>
       </div>
     </header>
