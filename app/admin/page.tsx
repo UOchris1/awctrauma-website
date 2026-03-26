@@ -40,6 +40,7 @@ interface Algorithm {
   icon_type: IconType
   card_color: CardColor
   image_url: string | null
+  html_url: string | null
   sort_order: number
   is_active: boolean
 }
@@ -733,6 +734,17 @@ export default function AdminPage() {
                         {editingAlgorithm.image_url && !algorithmImage && (
                           <p className="text-sm text-gray-500 mt-1">Current: {editingAlgorithm.image_url}</p>
                         )}
+                      </div>
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium mb-1">Interactive HTML URL (optional)</label>
+                        <input
+                          type="text"
+                          value={editingAlgorithm.html_url || ''}
+                          onChange={(e) => setEditingAlgorithm({ ...editingAlgorithm, html_url: e.target.value || null })}
+                          placeholder="/flowcharts/d2/chart_name.html"
+                          className="w-full p-2 border rounded text-sm"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">If set, clicking the card opens the interactive HTML version instead of the PNG</p>
                       </div>
                       <div className="flex gap-2">
                         <button

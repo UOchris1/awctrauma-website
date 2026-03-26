@@ -80,6 +80,7 @@ export default async function HomePage() {
     title: algo.title,
     shortTitle: algo.short_title,
     imageSrc: algo.image_url || '/flowcharts/placeholder.png',
+    htmlSrc: algo.html_url || undefined,
     iconType: algo.icon_type,
     cardColor: algo.card_color || 'auto'
   }))

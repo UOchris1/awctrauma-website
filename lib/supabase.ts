@@ -46,6 +46,7 @@ export interface AlgorithmRecord {
   icon_type: IconType
   card_color?: CardColor
   image_url?: string
+  html_url?: string
   sort_order: number
   is_active: boolean
   created_at: string
