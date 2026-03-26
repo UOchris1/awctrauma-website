@@ -14,10 +14,10 @@ interface TabbedDocumentsProps {
 }
 
 const tabs = [
-  { id: 'cpgs', label: 'Clinical Practice Guidelines', icon: 'clipboard' },
-  { id: 'resident_guidelines', label: 'Resident Guidelines', icon: 'book' },
-  { id: 'trauma_policies', label: 'Trauma Policies', icon: 'shield' },
-  { id: 'medical_student', label: 'Medical Student', icon: 'student' },
+  { id: 'cpgs', label: 'CPGs', icon: 'clipboard' },
+  { id: 'resident_guidelines', label: 'Resident', icon: 'book' },
+  { id: 'trauma_policies', label: 'Policies', icon: 'shield' },
+  { id: 'medical_student', label: 'Med Student', icon: 'student' },
   { id: 'resources', label: 'Resources', icon: 'folder' }
 ] as const
 
