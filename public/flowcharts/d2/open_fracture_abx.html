@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Open Fracture Antibiotic Protocol</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; width: 1200px; color: #1e293b; }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+
+  .title-bar { background: linear-gradient(135deg, #0f2b46, #1a4971); color: white; text-align: center; padding: 20px 40px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3); width: 540px; margin: 0 auto; }
+  .title-bar h1 { font-size: 24px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+
+  .step { background: linear-gradient(135deg, #0a6b8a, #0e7c9e); color: white; text-align: center; padding: 12px 22px; border-radius: 10px; display: inline-block; box-shadow: 0 3px 12px rgba(10,107,138,0.25); }
+  .step .ttl { font-size: 16px; font-weight: 700; }
+  .step .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+
+  .diamond-wrap { display: flex; justify-content: center; }
+  .diamond { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #d97706; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(217,119,6,0.15); }
+  .diamond-inner { transform: rotate(-45deg); text-align: center; padding: 8px; }
+  .diamond-inner .q { font-size: 13px; font-weight: 700; color: #92400e; line-height: 1.3; }
+
+  .action { background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9; color: #0c4a6e; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(14,165,233,0.1); font-size: 12.5px; line-height: 1.5; }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  .warn { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #f87171; border-left: 4px solid #dc2626; color: #991b1b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(220,38,38,0.1); font-size: 12.5px; line-height: 1.5; }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  .drug { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981; color: #064e3b; padding: 10px 14px; border-radius: 8px; text-align: left; display: inline-block; box-shadow: 0 2px 6px rgba(16,185,129,0.1); font-size: 12.5px; line-height: 1.6; }
+  .drug .dt { font-size: 14px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+
+  .ref-table { border-collapse: collapse; font-size: 12px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 8px; overflow: hidden; margin: 0 auto; }
+  .ref-table th { background: linear-gradient(135deg, #334155, #475569); color: white; padding: 8px 12px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ref-table td { padding: 6px 12px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+  .ref-table tr:nth-child(even) td { background: #f8fafc; }
+  .ref-table td:first-child { font-weight: 700; }
+
+  .sp { height: 22px; } .sp-sm { height: 14px; } .sp-lg { height: 28px; }
+
+  .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1; line-height: 1.6; }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <!-- TITLE -->
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>Open Fracture Antibiotic Protocol</h1><p>Gustilo-Anderson Classification &bull; Empiric Antibiotic Regimens</p></div></div>
+  <div class="sp"></div>
+
+  <!-- ENTRY -->
+  <div class="row flow" id="el_entry"><div class="step" style="width:460px;"><div class="ttl">Open Fracture Identified — ED Arrival</div><div class="sub">Tetanus prophylaxis &bull; Do NOT delay antibiotics for imaging or transfer</div></div></div>
+  <div class="sp"></div>
+
+  <!-- ALLERGY CHECK -->
+  <div class="diamond-wrap flow" id="el_allergy"><div class="diamond" style="width:190px;height:190px;"><div class="diamond-inner"><div class="q">Beta-lactam<br>allergy?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <!-- TWO COLUMNS: No allergy (left) / Allergy (right) -->
+  <div style="display:flex;justify-content:center;gap:40px;align-items:flex-start;" class="flow" id="el_abx_cols">
+    <!-- NO ALLERGY COLUMN -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:480px;" id="el_no_allergy_col">
+      <div class="step" style="width:280px;"><div class="ttl">No Allergy</div></div>
+      <div style="display:flex;gap:12px;">
+        <div class="drug" style="width:220px;" id="el_type12">
+          <div class="dt">Type I–II</div>
+          <strong>Cefazolin 2g IV</strong> q8h<br>
+          (3g if &gt; 120 kg)<br>
+          Duration: 24h post-closure
+        </div>
+        <div class="drug" style="width:220px;" id="el_type3">
+          <div class="dt">Type III</div>
+          <strong>Cefazolin 2g IV</strong> q8h<br>
+          <strong>+ Gentamicin 5mg/kg</strong> IV q24h<br>
+          Duration: 72h or 24h post-closure
+        </div>
+      </div>
+    </div>
+
+    <!-- ALLERGY COLUMN -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:480px;" id="el_allergy_col">
+      <div class="warn" style="width:280px;"><div class="wt">Beta-Lactam Allergy</div></div>
+      <div style="display:flex;gap:12px;">
+        <div class="drug" style="width:220px;" id="el_alt12">
+          <div class="dt">Type I–II</div>
+          <strong>Clindamycin 900mg IV</strong> q8h<br>
+          Duration: 24h post-closure
+        </div>
+        <div class="drug" style="width:220px;" id="el_alt3">
+          <div class="dt">Type III</div>
+          <strong>Clindamycin 900mg IV</strong> q8h<br>
+          <strong>+ Levofloxacin 750mg</strong> IV q24h<br>
+          Duration: 72h or 24h post-closure
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- MRSA RISK -->
+  <div class="diamond-wrap flow" id="el_mrsa"><div class="diamond" style="width:180px;height:180px;"><div class="diamond-inner"><div class="q">MRSA risk?<br><span style="font-size:11px;font-weight:500;">Colonization, ICU,<br>high prevalence</span></div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div class="row flow" id="el_mrsa_yes">
+    <div class="warn" style="width:380px;" id="el_vanco">
+      <div class="wt">Add Vancomycin</div>
+      15–20 mg/kg IV q8–12h (pharmacy-dosed)<br>
+      Target trough 15–20 mcg/mL or AUC/MIC
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- CONTAMINATION -->
+  <div class="diamond-wrap flow" id="el_contam"><div class="diamond" style="width:180px;height:180px;"><div class="diamond-inner"><div class="q">Contamination<br>modifier?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:16px;" class="flow" id="el_contam_row">
+    <div class="drug" style="width:220px;" id="el_farm">
+      <div class="dt">Farm / Soil / Fecal</div>
+      Add <strong>Metronidazole 500mg IV</strong> q8h<br>
+      or <strong>high-dose Penicillin</strong><br>
+      (Clostridial coverage)
+    </div>
+    <div class="drug" style="width:220px;" id="el_freshwater">
+      <div class="dt">Freshwater</div>
+      Add <strong>Levofloxacin 750mg</strong> IV q24h<br>
+      or <strong>Ciprofloxacin</strong><br>
+      (Aeromonas coverage)
+    </div>
+    <div class="drug" style="width:220px;" id="el_saltwater">
+      <div class="dt">Saltwater</div>
+      Add <strong>Doxycycline 100mg IV</strong> q12h<br>
+      (Vibrio coverage)
+    </div>
+    <div class="action" style="width:180px;" id="el_none_contam">
+      <div class="at">None</div>
+      Continue base regimen
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- CONCURRENT STEPS -->
+  <div class="row flow" id="el_concurrent">
+    <div class="step" style="width:500px;">
+      <div class="ttl">Complete Concurrent Steps</div>
+      <div class="sub">I&amp;D within 24h (Type I–II) or emergent (Type III) &bull; Tetanus prophylaxis &bull; Plan definitive soft tissue coverage within 5 days</div>
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <!-- GUSTILO-ANDERSON REFERENCE TABLE -->
+  <div class="row flow" id="el_table_row">
+    <div style="width:700px;">
+      <table class="ref-table">
+        <tr><th>Type</th><th>Wound</th><th>Soft Tissue</th><th>Contamination</th></tr>
+        <tr><td>I</td><td>&lt; 1 cm</td><td>Minimal damage</td><td>Clean</td></tr>
+        <tr><td>II</td><td>1–10 cm</td><td>Moderate damage, no flap</td><td>Moderate</td></tr>
+        <tr><td>IIIA</td><td>&gt; 10 cm</td><td>Adequate coverage possible</td><td>High energy</td></tr>
+        <tr><td>IIIB</td><td>&gt; 10 cm</td><td>Requires flap/graft coverage</td><td>Severe</td></tr>
+        <tr><td>IIIC</td><td>Any</td><td>Vascular injury requiring repair</td><td>Variable</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on EAST Guidelines and OTA Antibiotic Protocol for Open Fractures &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart = document.getElementById('chart');
+  const svg = document.getElementById('connectors');
+  const W = chart.scrollWidth, H = chart.scrollHeight;
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.width = W+'px'; svg.style.height = H+'px';
+  const CR = chart.getBoundingClientRect();
+  const CX = W/2, mainColor = '#334155';
+
+  function r(id){const el=document.getElementById(id);if(!el)return null;const b=el.getBoundingClientRect();return{t:b.top-CR.top,b:b.bottom-CR.top,l:b.left-CR.left,r:b.right-CR.left,cx:(b.left+b.right)/2-CR.left,cy:(b.top+b.bottom)/2-CR.top};}
+  function line(x1,y1,x2,y2,c=mainColor,w=2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  function arrowHead(x,y,a,c=mainColor,s=8){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${x},${y} ${x-s*Math.cos(a-Math.PI/6)},${y-s*Math.sin(a-Math.PI/6)} ${x-s*Math.cos(a+Math.PI/6)},${y-s*Math.sin(a+Math.PI/6)}`);p.setAttribute('fill',c);svg.appendChild(p);}
+  function arrow(x1,y1,x2,y2,c=mainColor,w=2){line(x1,y1,x2,y2,c,w);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),c);}
+  function lPath(pts,c=mainColor,w=2,arr=true){for(let i=0;i<pts.length-1;i++)line(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],c,w);if(arr&&pts.length>=2){const[px,py]=pts[pts.length-2],[ex,ey]=pts[pts.length-1];arrowHead(ex,ey,Math.atan2(ey-py,ex-px),c);}}
+  function pill(x,y,t,c,bg){const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');const pw=t.length*9+18;fo.setAttribute('x',x-pw/2);fo.setAttribute('y',y-12);fo.setAttribute('width',pw);fo.setAttribute('height',24);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;font-size:12px;font-weight:800;color:${c};background:${bg};border:2px solid ${c};border-radius:12px;text-align:center;line-height:20px;width:${pw}px;height:24px;">${t}</div>`;svg.appendChild(fo);}
+  function dPts(id){const o=document.getElementById(id);const d=o.querySelector('.diamond');if(!d)return null;const b=d.getBoundingClientRect();const cx=(b.left+b.right)/2-CR.left,cy=(b.top+b.bottom)/2-CR.top;return{top:{x:cx,y:b.top-CR.top},bottom:{x:cx,y:b.bottom-CR.top},left:{x:b.left-CR.left,y:cy},right:{x:b.right-CR.left,y:cy}};}
+
+  const title=r('el_title'), entry=r('el_entry');
+  const allergy=dPts('el_allergy');
+  const noAllergyCol=r('el_no_allergy_col'), allergyCol=r('el_allergy_col');
+  const mrsa=dPts('el_mrsa'), vanco=r('el_vanco');
+  const contam=dPts('el_contam');
+  const concurrent=r('el_concurrent');
+
+  // Title → Entry → Allergy
+  arrow(CX, title.b, CX, entry.t, mainColor, 2.5);
+  arrow(CX, entry.b, allergy.top.x, allergy.top.y, mainColor, 2.5);
+
+  // Allergy NO → left column
+  lPath([[allergy.left.x,allergy.left.y],[noAllergyCol.cx,allergy.left.y],[noAllergyCol.cx,noAllergyCol.t]],'#16a34a',2.5);
+  pill((allergy.left.x+noAllergyCol.cx)/2, allergy.left.y, 'NO','#16a34a','#f0fdf4');
+
+  // Allergy YES → right column
+  lPath([[allergy.right.x,allergy.right.y],[allergyCol.cx,allergy.right.y],[allergyCol.cx,allergyCol.t]],'#dc2626',2.5);
+  pill((allergy.right.x+allergyCol.cx)/2, allergy.right.y, 'YES','#dc2626','#fef2f2');
+
+  // Both → merge → MRSA
+  const abxMerge = Math.max(noAllergyCol.b, allergyCol.b) + 14;
+  line(noAllergyCol.cx,noAllergyCol.b,noAllergyCol.cx,abxMerge);
+  line(allergyCol.cx,allergyCol.b,allergyCol.cx,abxMerge);
+  line(noAllergyCol.cx,abxMerge,allergyCol.cx,abxMerge);
+  arrow(CX,abxMerge,mrsa.top.x,mrsa.top.y,mainColor,2.5);
+
+  // MRSA YES → Vanco
+  arrow(mrsa.bottom.x, mrsa.bottom.y, vanco.cx, vanco.t, '#dc2626', 2.5);
+  pill(mrsa.bottom.x, mrsa.bottom.y + 6, 'YES','#dc2626','#fef2f2');
+
+  // MRSA NO bypass (route right around vanco)
+  const mrNoX = vanco.r + 30;
+  lPath([[mrsa.right.x,mrsa.right.y],[mrNoX,mrsa.right.y],[mrNoX,vanco.b+14],[CX,vanco.b+14]],'#16a34a',2,false);
+  pill(mrsa.right.x+25, mrsa.right.y, 'NO','#16a34a','#f0fdf4');
+
+  // Vanco → Contamination
+  arrow(CX, vanco.b, contam.top.x, contam.top.y, mainColor, 2.5);
+
+  // Contamination → fan to 4 options
+  const contRow = r('el_contam_row');
+  const farm=r('el_farm'), fresh=r('el_freshwater'), salt=r('el_saltwater'), noneC=r('el_none_contam');
+  const contBus = contam.bottom.y + 14;
+  line(contam.bottom.x,contam.bottom.y,contam.bottom.x,contBus);
+  line(farm.cx,contBus,noneC.cx,contBus);
+  arrow(farm.cx,contBus,farm.cx,farm.t);
+  arrow(fresh.cx,contBus,fresh.cx,fresh.t);
+  arrow(salt.cx,contBus,salt.cx,salt.t);
+  arrow(noneC.cx,contBus,noneC.cx,noneC.t);
+
+  // All contam → merge → concurrent
+  const contMerge = Math.max(farm.b,fresh.b,salt.b,noneC.b) + 14;
+  for(const c of [farm,fresh,salt,noneC]) line(c.cx,c.b,c.cx,contMerge,mainColor,1.5);
+  line(farm.cx,contMerge,noneC.cx,contMerge);
+  arrow(CX,contMerge,CX,concurrent.t,mainColor,2.5);
+});
+</script>
+</body>
+</html>

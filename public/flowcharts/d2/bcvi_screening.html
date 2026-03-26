@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BCVI Screening Algorithm</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; width: 1200px; color: #1e293b; }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+  .title-bar { background: linear-gradient(135deg, #0f2b46, #1a4971); color: white; text-align: center; padding: 20px 40px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3); width: 600px; margin: 0 auto; }
+  .title-bar h1 { font-size: 22px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+  .step { background: linear-gradient(135deg, #0a6b8a, #0e7c9e); color: white; text-align: center; padding: 12px 22px; border-radius: 10px; display: inline-block; box-shadow: 0 3px 12px rgba(10,107,138,0.25); }
+  .step .ttl { font-size: 16px; font-weight: 700; } .step .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .action { background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9; color: #0c4a6e; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(14,165,233,0.1); font-size: 12.5px; line-height: 1.5; }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .warn { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #f87171; border-left: 4px solid #dc2626; color: #991b1b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(220,38,38,0.1); font-size: 12.5px; line-height: 1.5; }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .icu { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.5; }
+  .icu .it { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .outcome { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981; color: #064e3b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(16,185,129,0.1); font-size: 12.5px; line-height: 1.5; }
+  .outcome .ot { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .diamond-wrap { display: flex; justify-content: center; }
+  .diamond { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #d97706; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(217,119,6,0.15); }
+  .diamond-inner { transform: rotate(-45deg); text-align: center; padding: 8px; }
+  .diamond-inner .q { font-size: 13px; font-weight: 700; color: #92400e; line-height: 1.3; }
+  .criteria-box { background: #f0f9ff; border: 2px solid #38bdf8; border-radius: 10px; padding: 14px 18px; text-align: left; font-size: 12.5px; line-height: 1.6; color: #0c4a6e; box-shadow: 0 2px 8px rgba(56,189,248,0.1); }
+  .criteria-box .cb-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; text-align: center; }
+  .criteria-box ul { list-style: none; padding: 0; }
+  .criteria-box ul li::before { content: "•"; color: #0ea5e9; font-weight: bold; margin-right: 6px; }
+  .grade-card { border-radius: 10px; padding: 10px 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-size: 12px; line-height: 1.5; }
+  .grade-low { background: #ecfdf5; border: 2px solid #6ee7b7; border-top: 4px solid #10b981; color: #064e3b; }
+  .grade-high { background: #fff7ed; border: 2px solid #fdba74; border-top: 4px solid #f97316; color: #7c2d12; }
+  .grade-crit { background: #fef2f2; border: 2px solid #fca5a5; border-top: 4px solid #ef4444; color: #7f1d1d; }
+  .grade-card .gt { font-size: 14px; font-weight: 800; margin-bottom: 3px; }
+  .drug { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: left; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.6; }
+  .drug .dt { font-size: 14px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+  .sp { height: 22px; } .sp-sm { height: 14px; } .sp-lg { height: 28px; }
+  .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1; line-height: 1.6; }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>BCVI Screening &amp; Management</h1><p>Blunt Cerebrovascular Injury &bull; Expanded Denver Criteria &bull; Biffl Grading</p></div></div>
+  <div class="sp"></div>
+
+  <!-- SCREENING CRITERIA -->
+  <div style="display:flex;justify-content:center;gap:20px;" class="flow" id="el_criteria_row">
+    <div class="criteria-box" style="width:520px;" id="el_criteria">
+      <div class="cb-title">Expanded Denver Screening Criteria — Obtain CTA</div>
+      <div style="display:flex;gap:20px;">
+        <ul style="flex:1;">
+          <li>Arterial hemorrhage from neck/nose/mouth</li>
+          <li>Expanding cervical hematoma</li>
+          <li>Cervical bruit in patient &lt; 50</li>
+          <li>Focal neurological deficit (TIA, stroke)</li>
+          <li>Horner syndrome</li>
+          <li>GCS ≤ 8 with no CT explanation</li>
+        </ul>
+        <ul style="flex:1;">
+          <li>Le Fort II or III fracture</li>
+          <li>Basilar skull fracture into carotid canal</li>
+          <li>C-spine fracture (subluxation, fx through foramen transversarium)</li>
+          <li>DAI with GCS &lt; 6</li>
+          <li>Near-hanging with anoxia</li>
+          <li>Seatbelt sign / clothesline injury to neck</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <!-- CTA RESULT -->
+  <div class="diamond-wrap flow" id="el_cta"><div class="diamond" style="width:170px;height:170px;"><div class="diamond-inner"><div class="q">BCVI on CTA?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:80px;align-items:flex-start;" class="flow" id="el_cta_row">
+    <!-- NEGATIVE -->
+    <div class="outcome" style="width:220px;" id="el_negative">
+      <div class="ot">No BCVI</div>
+      Continue standard care<br>
+      Reassess if new neuro symptoms
+    </div>
+
+    <!-- POSITIVE → Grade -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:620px;" id="el_positive_col">
+      <div class="step" style="width:360px;" id="el_grade_step">
+        <div class="ttl">BCVI Confirmed — Grade per Biffl Scale</div>
+      </div>
+
+      <!-- GRADES -->
+      <div style="display:flex;gap:10px;">
+        <div class="grade-card grade-low" style="width:145px;" id="el_g1">
+          <div class="gt">Grade I</div>
+          Irregularity or<br>dissection &lt; 25%
+        </div>
+        <div class="grade-card grade-low" style="width:145px;" id="el_g2">
+          <div class="gt">Grade II</div>
+          Dissection ≥ 25%,<br>intraluminal thrombus,<br>or raised flap
+        </div>
+        <div class="grade-card grade-high" style="width:145px;" id="el_g3">
+          <div class="gt">Grade III</div>
+          Pseudoaneurysm
+        </div>
+        <div class="grade-card grade-crit" style="width:145px;" id="el_g4">
+          <div class="gt">Grade IV–V</div>
+          Occlusion (IV)<br>or transection (V)
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- ANTITHROMBOTIC THERAPY -->
+  <div class="diamond-wrap flow" id="el_contraind"><div class="diamond" style="width:200px;height:200px;"><div class="diamond-inner"><div class="q">Antithrombotic<br>contraindicated?</div><div style="font-size:10px;font-weight:500;color:#a16207;font-style:italic;margin-top:2px;">ICH, SOI, recent<br>craniotomy, active bleed</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:40px;align-items:flex-start;" class="flow" id="el_tx_row">
+    <div class="warn" style="width:240px;" id="el_no_anticoag">
+      <div class="wt">Hold Antithrombotics</div>
+      Reassess daily for eligibility<br>
+      Consider endovascular/surgical<br>
+      intervention for Grade III–V
+    </div>
+    <div class="drug" style="width:320px;" id="el_anticoag">
+      <div class="dt">Antithrombotic Therapy</div>
+      <strong>Grade I–II:</strong> ASA 325mg daily<br>
+      <strong>Grade III–IV:</strong> Heparin drip (consider)<br>
+      or ASA 325mg daily per institutional protocol<br>
+      <span style="font-size:11px;">Start ASAP when safe — within 24h if possible</span>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- FOLLOW-UP -->
+  <div class="row flow" id="el_followup">
+    <div class="action" style="width:600px;" id="el_fu_box">
+      <div class="at">Follow-Up Imaging &amp; Monitoring</div>
+      Repeat CTA at 7 days — assess for progression or resolution<br>
+      If Grade I resolved → discontinue antithrombotic<br>
+      If persistent or worsened → continue therapy, repeat CTA at 3 months<br>
+      <strong>Grade III–V: vascular surgery consult for stent/repair consideration</strong>
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on Expanded Denver Criteria, Biffl Grading Scale, and WTA/EAST BCVI Guidelines &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart=document.getElementById('chart'),svg=document.getElementById('connectors');
+  const W=chart.scrollWidth,H=chart.scrollHeight;
+  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width=W+'px';svg.style.height=H+'px';
+  const CR=chart.getBoundingClientRect(),CX=W/2,mc='#334155';
+  function r(id){const el=document.getElementById(id);if(!el)return null;const b=el.getBoundingClientRect();return{t:b.top-CR.top,b:b.bottom-CR.top,l:b.left-CR.left,r:b.right-CR.left,cx:(b.left+b.right)/2-CR.left,cy:(b.top+b.bottom)/2-CR.top};}
+  function line(x1,y1,x2,y2,c=mc,w=2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  function arrowHead(x,y,a,c=mc,s=8){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${x},${y} ${x-s*Math.cos(a-Math.PI/6)},${y-s*Math.sin(a-Math.PI/6)} ${x-s*Math.cos(a+Math.PI/6)},${y-s*Math.sin(a+Math.PI/6)}`);p.setAttribute('fill',c);svg.appendChild(p);}
+  function arrow(x1,y1,x2,y2,c=mc,w=2){line(x1,y1,x2,y2,c,w);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),c);}
+  function lPath(pts,c=mc,w=2){for(let i=0;i<pts.length-1;i++)line(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],c,w);if(pts.length>=2){const[px,py]=pts[pts.length-2],[ex,ey]=pts[pts.length-1];arrowHead(ex,ey,Math.atan2(ey-py,ex-px),c);}}
+  function pill(x,y,t,c,bg){const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');const pw=t.length*9+18;fo.setAttribute('x',x-pw/2);fo.setAttribute('y',y-12);fo.setAttribute('width',pw);fo.setAttribute('height',24);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;font-size:12px;font-weight:800;color:${c};background:${bg};border:2px solid ${c};border-radius:12px;text-align:center;line-height:20px;width:${pw}px;height:24px;">${t}</div>`;svg.appendChild(fo);}
+  function dPts(id){const o=document.getElementById(id);const d=o.querySelector('.diamond');if(!d)return null;const b=d.getBoundingClientRect();const cx=(b.left+b.right)/2-CR.left,cy=(b.top+b.bottom)/2-CR.top;return{top:{x:cx,y:b.top-CR.top},bottom:{x:cx,y:b.bottom-CR.top},left:{x:b.left-CR.left,y:cy},right:{x:b.right-CR.left,y:cy}};}
+
+  const title=r('el_title'),criteria=r('el_criteria');
+  const cta=dPts('el_cta'),negative=r('el_negative'),positiveCol=r('el_positive_col'),gradeStep=r('el_grade_step');
+  const contraind=dPts('el_contraind'),noAnticoag=r('el_no_anticoag'),anticoag=r('el_anticoag');
+  const fuBox=r('el_fu_box');
+
+  // Title → Criteria → CTA diamond
+  arrow(CX,title.b,CX,criteria.t,mc,2.5);
+  arrow(CX,criteria.b,cta.top.x,cta.top.y,mc,2.5);
+
+  // CTA NO → Negative (left)
+  lPath([[cta.left.x,cta.left.y],[negative.cx,cta.left.y],[negative.cx,negative.t]],'#16a34a',2.5);
+  pill((cta.left.x+negative.cx)/2,cta.left.y,'NO','#16a34a','#f0fdf4');
+
+  // CTA YES → Positive col (right)
+  lPath([[cta.right.x,cta.right.y],[positiveCol.cx,cta.right.y],[positiveCol.cx,gradeStep.t]],'#dc2626',2.5);
+  pill((cta.right.x+positiveCol.cx)/2,cta.right.y,'YES','#dc2626','#fef2f2');
+
+  // Positive col → contraindication diamond
+  arrow(positiveCol.cx,positiveCol.b,contraind.top.x,contraind.top.y,mc,2);
+
+  // Contraind YES → Hold (left)
+  lPath([[contraind.left.x,contraind.left.y],[noAnticoag.cx,contraind.left.y],[noAnticoag.cx,noAnticoag.t]],'#dc2626',2.5);
+  pill((contraind.left.x+noAnticoag.cx)/2,contraind.left.y,'YES','#dc2626','#fef2f2');
+
+  // Contraind NO → Treat (right)
+  lPath([[contraind.right.x,contraind.right.y],[anticoag.cx,contraind.right.y],[anticoag.cx,anticoag.t]],'#16a34a',2.5);
+  pill((contraind.right.x+anticoag.cx)/2,contraind.right.y,'NO','#16a34a','#f0fdf4');
+
+  // Both → merge → Follow-up
+  const txMerge=Math.max(noAnticoag.b,anticoag.b)+14;
+  line(noAnticoag.cx,noAnticoag.b,noAnticoag.cx,txMerge);
+  line(anticoag.cx,anticoag.b,anticoag.cx,txMerge);
+  line(noAnticoag.cx,txMerge,anticoag.cx,txMerge);
+  arrow(CX,txMerge,CX,fuBox.t,mc,2.5);
+});
+</script>
+</body>
+</html>

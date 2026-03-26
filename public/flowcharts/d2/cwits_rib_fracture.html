@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CWITS Rib Fracture Management</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; width: 1200px; color: #1e293b; }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+  .title-bar { background: linear-gradient(135deg, #0f2b46, #1a4971); color: white; text-align: center; padding: 20px 40px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3); width: 600px; margin: 0 auto; }
+  .title-bar h1 { font-size: 22px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+  .step { background: linear-gradient(135deg, #0a6b8a, #0e7c9e); color: white; text-align: center; padding: 12px 22px; border-radius: 10px; display: inline-block; box-shadow: 0 3px 12px rgba(10,107,138,0.25); }
+  .step .ttl { font-size: 16px; font-weight: 700; } .step .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .action { background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9; color: #0c4a6e; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(14,165,233,0.1); font-size: 12.5px; line-height: 1.5; }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .warn { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #f87171; border-left: 4px solid #dc2626; color: #991b1b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(220,38,38,0.1); font-size: 12.5px; line-height: 1.5; }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .icu { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.5; }
+  .icu .it { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .outcome { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981; color: #064e3b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(16,185,129,0.1); font-size: 12.5px; line-height: 1.5; }
+  .outcome .ot { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .score-card { border-radius: 10px; padding: 12px 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-size: 12.5px; line-height: 1.5; }
+  .score-low { background: #ecfdf5; border: 2px solid #6ee7b7; border-top: 4px solid #10b981; color: #064e3b; }
+  .score-mid { background: #eff6ff; border: 2px solid #93c5fd; border-top: 4px solid #3b82f6; color: #1e3a8a; }
+  .score-high { background: #fff7ed; border: 2px solid #fdba74; border-top: 4px solid #f97316; color: #7c2d12; }
+  .score-card .st { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+  .ref-table { border-collapse: collapse; font-size: 12px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 8px; overflow: hidden; }
+  .ref-table th { background: linear-gradient(135deg, #334155, #475569); color: white; padding: 7px 12px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ref-table td { padding: 5px 12px; border-bottom: 1px solid #e2e8f0; color: #334155; text-align: center; }
+  .ref-table tr:nth-child(even) td { background: #f8fafc; }
+  .sp { height: 22px; } .sp-sm { height: 14px; } .sp-lg { height: 28px; }
+  .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1; line-height: 1.6; }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>CWITS — Rib Fracture Management</h1><p>Chest Wall Injury Triage Score &bull; Pain Management &bull; SSRF Criteria</p></div></div>
+  <div class="sp"></div>
+
+  <!-- ENTRY + HIGH RISK OVERRIDE -->
+  <div style="display:flex;justify-content:center;gap:30px;" class="flow" id="el_top_row">
+    <div class="step" style="width:380px;" id="el_entry">
+      <div class="ttl">Rib Fracture(s) Identified</div>
+      <div class="sub">CT chest recommended for accurate fracture count<br>Assess pulmonary contusion, pneumo/hemothorax</div>
+    </div>
+    <div class="warn" style="width:280px;" id="el_override">
+      <div class="wt">High-Risk Override → ICU</div>
+      Age &gt; 65 &bull; Flail chest<br>
+      Bilateral fractures &bull; ≥ 4 fractures<br>
+      Respiratory failure &bull; Anticoagulated
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <!-- CWITS SCORING TABLE -->
+  <div class="row flow" id="el_score_table">
+    <div style="width:700px;">
+      <table class="ref-table">
+        <tr><th colspan="3" style="text-align:center;font-size:13px;">CWITS 2.0 Scoring</th></tr>
+        <tr><th>Factor</th><th>Criteria</th><th>Points</th></tr>
+        <tr><td style="font-weight:700;">Age</td><td>+1 point per decade over 10</td><td>1–8</td></tr>
+        <tr><td style="font-weight:700;">Rib fractures</td><td>1 point per fracture (max 8)</td><td>1–8</td></tr>
+        <tr><td style="font-weight:700;">Bilateral</td><td>Bilateral rib fractures</td><td>+2</td></tr>
+        <tr><td style="font-weight:700;">Flail chest</td><td>Flail segment present</td><td>+5</td></tr>
+        <tr><td style="font-weight:700;">Pulm contusion</td><td>PFx ratio &gt; 30%</td><td>+3</td></tr>
+        <tr><td style="font-weight:700;">Anticoagulation</td><td>Pre-injury anticoagulation</td><td>+3</td></tr>
+        <tr><td style="font-weight:700;">Impaired vent</td><td>SpO2 &lt; 92%, RR &gt; 20, NIF &gt; −20</td><td>+3</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <!-- SCORE TRIAGE -->
+  <div style="display:flex;justify-content:center;gap:16px;" class="flow" id="el_scores">
+    <div class="score-card score-low" style="width:300px;" id="el_low">
+      <div class="st">Score 0–3: Low Risk</div>
+      <strong>Discharge from ED</strong><br>
+      Oral analgesia<br>
+      Incentive spirometry (IS) target: 15 mL/kg<br>
+      Follow-up in trauma clinic 3–5 days<br>
+      Return precautions: dyspnea, fever
+    </div>
+    <div class="score-card score-mid" style="width:300px;" id="el_mid">
+      <div class="st">Score 4–6: Moderate Risk</div>
+      <strong>Ward / Step-Down Admission</strong><br>
+      IV/PCA multimodal analgesia<br>
+      IS goal: 15 mL/kg q1h while awake<br>
+      Pulmonary toilet, early mobilization<br>
+      <strong>Consider regional anesthesia</strong>
+    </div>
+    <div class="score-card score-high" style="width:300px;" id="el_high">
+      <div class="st">Score ≥ 7: High Risk</div>
+      <strong>ICU Admission</strong><br>
+      Regional anesthesia within 12h<br>
+      (epidural, paravertebral, or serratus block)<br>
+      IS with respiratory therapy q4h<br>
+      <strong>Evaluate for SSRF</strong>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- PAIN MANAGEMENT LADDER -->
+  <div class="row flow" id="el_pain_row">
+    <div class="icu" style="width:700px;" id="el_pain">
+      <div class="it">Multimodal Pain Management Pathway</div>
+      <div style="display:flex;gap:20px;justify-content:center;margin-top:6px;">
+        <div style="text-align:left;">
+          <strong>Tier 1 (All patients):</strong><br>
+          Acetaminophen 1g IV/PO q6h<br>
+          Lidocaine patch 5% to chest wall
+        </div>
+        <div style="text-align:left;">
+          <strong>Tier 2 (Moderate pain):</strong><br>
+          Ketorolac 15–30mg IV q6h × 5 days<br>
+          Gabapentin 300mg PO TID
+        </div>
+        <div style="text-align:left;">
+          <strong>Tier 3 (Severe / Score ≥ 5):</strong><br>
+          Regional block within 12h<br>
+          PCA if regional contraindicated<br>
+          Minimize IV opioids
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- SSRF CRITERIA -->
+  <div style="display:flex;justify-content:center;gap:40px;" class="flow" id="el_ssrf_row">
+    <div class="warn" style="width:340px;" id="el_ssrf">
+      <div class="wt">SSRF Consult Criteria</div>
+      Flail chest with respiratory failure<br>
+      ≥ 3 severely displaced fractures<br>
+      Failure to wean from mechanical ventilation<br>
+      Non-union / malunion with chronic pain<br>
+      <strong>Thoracic surgery consult within 24h</strong>
+    </div>
+    <div class="outcome" style="width:300px;" id="el_stepdown">
+      <div class="ot">Step-Down / Discharge Criteria</div>
+      Pain controlled on oral regimen<br>
+      IS goal ≥ 15 mL/kg consistently<br>
+      SpO2 &gt; 92% on room air<br>
+      Adequate cough, no respiratory distress<br>
+      Safe home environment
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on CWITS 2.0 and EAST Rib Fracture Management Guidelines &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart=document.getElementById('chart'),svg=document.getElementById('connectors');
+  const W=chart.scrollWidth,H=chart.scrollHeight;
+  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width=W+'px';svg.style.height=H+'px';
+  const CR=chart.getBoundingClientRect(),CX=W/2,mc='#334155';
+  function r(id){const el=document.getElementById(id);if(!el)return null;const b=el.getBoundingClientRect();return{t:b.top-CR.top,b:b.bottom-CR.top,l:b.left-CR.left,r:b.right-CR.left,cx:(b.left+b.right)/2-CR.left,cy:(b.top+b.bottom)/2-CR.top};}
+  function line(x1,y1,x2,y2,c=mc,w=2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  function arrowHead(x,y,a,c=mc,s=8){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${x},${y} ${x-s*Math.cos(a-Math.PI/6)},${y-s*Math.sin(a-Math.PI/6)} ${x-s*Math.cos(a+Math.PI/6)},${y-s*Math.sin(a+Math.PI/6)}`);p.setAttribute('fill',c);svg.appendChild(p);}
+  function arrow(x1,y1,x2,y2,c=mc,w=2){line(x1,y1,x2,y2,c,w);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),c);}
+
+  const entry=r('el_entry'),scoreTable=r('el_score_table');
+  const low=r('el_low'),mid=r('el_mid'),high=r('el_high');
+  const pain=r('el_pain'),ssrf=r('el_ssrf'),stepdown=r('el_stepdown');
+
+  // Entry → Score table
+  arrow(entry.cx,entry.b,entry.cx,scoreTable.t-2,mc,2.5);
+  // Score table → fan to 3 tiers
+  const scoreBus=scoreTable.b+12;
+  line(CX,scoreTable.b,CX,scoreBus);
+  line(low.cx,scoreBus,high.cx,scoreBus);
+  arrow(low.cx,scoreBus,low.cx,low.t);
+  arrow(mid.cx,scoreBus,mid.cx,mid.t);
+  arrow(high.cx,scoreBus,high.cx,high.t);
+
+  // All tiers → merge → pain
+  const tierMerge=Math.max(low.b,mid.b,high.b)+14;
+  for(const c of [low,mid,high]) line(c.cx,c.b,c.cx,tierMerge,mc,1.5);
+  line(low.cx,tierMerge,high.cx,tierMerge);
+  arrow(CX,tierMerge,CX,pain.t,mc,2.5);
+
+  // Pain → fan to SSRF and discharge
+  const painBus=pain.b+14;
+  line(CX,pain.b,CX,painBus);
+  line(ssrf.cx,painBus,stepdown.cx,painBus);
+  arrow(ssrf.cx,painBus,ssrf.cx,ssrf.t);
+  arrow(stepdown.cx,painBus,stepdown.cx,stepdown.t);
+});
+</script>
+</body>
+</html>

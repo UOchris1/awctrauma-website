@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Geriatric Trauma Algorithm</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; width: 1200px; color: #1e293b; }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+
+  .title-bar { background: linear-gradient(135deg, #0f2b46, #1a4971); color: white; text-align: center; padding: 20px 40px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3); width: 520px; margin: 0 auto; }
+  .title-bar h1 { font-size: 24px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+
+  .step { background: linear-gradient(135deg, #0a6b8a, #0e7c9e); color: white; text-align: center; padding: 12px 22px; border-radius: 10px; display: inline-block; box-shadow: 0 3px 12px rgba(10,107,138,0.25); }
+  .step .ttl { font-size: 16px; font-weight: 700; }
+  .step .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+
+  .diamond-wrap { display: flex; justify-content: center; }
+  .diamond { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #d97706; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(217,119,6,0.15); }
+  .diamond-inner { transform: rotate(-45deg); text-align: center; padding: 8px; }
+  .diamond-inner .q { font-size: 13px; font-weight: 700; color: #92400e; line-height: 1.3; }
+  .diamond-inner .qs { font-size: 11px; font-weight: 500; color: #a16207; font-style: italic; }
+
+  .action { background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9; color: #0c4a6e; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(14,165,233,0.1); font-size: 12.5px; line-height: 1.5; }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  .warn { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #f87171; border-left: 4px solid #dc2626; color: #991b1b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(220,38,38,0.1); font-size: 12.5px; line-height: 1.5; }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  .icu { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.5; }
+  .icu .it { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  .outcome { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981; color: #064e3b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(16,185,129,0.1); font-size: 12.5px; line-height: 1.5; }
+  .outcome .ot { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  /* CFS tier cards */
+  .cfs-card { border-radius: 10px; padding: 12px 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-size: 12px; line-height: 1.5; }
+  .cfs1 { background: #ecfdf5; border: 2px solid #6ee7b7; border-top: 4px solid #10b981; color: #064e3b; }
+  .cfs2 { background: #eff6ff; border: 2px solid #93c5fd; border-top: 4px solid #3b82f6; color: #1e3a8a; }
+  .cfs3 { background: #fff7ed; border: 2px solid #fdba74; border-top: 4px solid #f97316; color: #7c2d12; }
+  .cfs4 { background: #fef2f2; border: 2px solid #fca5a5; border-top: 4px solid #ef4444; color: #7f1d1d; }
+  .cfs-card .ct { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+  .cfs-card .cs { font-size: 12.5px; font-weight: 600; margin-bottom: 2px; }
+
+  .sp { height: 22px; } .sp-sm { height: 14px; } .sp-lg { height: 28px; }
+
+  .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1; line-height: 1.6; }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <!-- TITLE -->
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>Geriatric Trauma Algorithm</h1><p>Age ≥ 65 &bull; Geriatric-Specific Thresholds and Frailty-Based Management</p></div></div>
+  <div class="sp"></div>
+
+  <!-- ENTRY -->
+  <div class="row flow" id="el_entry"><div class="step" style="width:380px;"><div class="ttl">Geriatric Trauma Patient — Age ≥ 65</div></div></div>
+  <div class="sp"></div>
+
+  <!-- GERIATRIC SHOCK? -->
+  <div class="diamond-wrap flow" id="el_shock"><div class="diamond" style="width:200px;height:200px;"><div class="diamond-inner"><div class="q">Geriatric Shock?</div><div class="qs">SBP &lt; 110<br>OR HR &gt; 90</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <!-- SHOCK BRANCHES -->
+  <div style="display:flex;justify-content:center;gap:120px;" class="flow" id="el_shock_row">
+    <div class="warn" style="width:220px;" id="el_upgrade">
+      <div class="wt">Upgrade Activation</div>
+      One tier higher<br>
+      Consider occult shock
+    </div>
+    <div class="action" style="width:200px;" id="el_standard_act">
+      <div class="at">Standard Activation</div>
+      Per mechanism criteria
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <!-- ATLS + LABS -->
+  <div class="row flow" id="el_atls"><div class="step" style="width:420px;"><div class="ttl">ATLS + POC INR + Anti-Xa Level</div><div class="sub">Early coagulation assessment — geriatric patients frequently anticoagulated</div></div></div>
+  <div class="sp"></div>
+
+  <!-- HEAD STRIKE / ANTICOAG? -->
+  <div class="diamond-wrap flow" id="el_head"><div class="diamond" style="width:190px;height:190px;"><div class="diamond-inner"><div class="q">Head strike OR<br>anticoagulated?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <!-- HEAD BRANCHES -->
+  <div style="display:flex;justify-content:center;gap:60px;align-items:flex-start;" class="flow" id="el_head_row">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;" id="el_ct_col">
+      <div class="warn" style="width:240px;" id="el_ct_head">
+        <div class="wt">Mandatory CT Head</div>
+        Low threshold for imaging<br>
+        in geriatric population
+      </div>
+      <div class="diamond-wrap" id="el_ich"><div class="diamond" style="width:140px;height:140px;"><div class="diamond-inner"><div class="q">ICH on CT?</div></div></div></div>
+      <div style="display:flex;gap:20px;align-items:flex-start;">
+        <div class="warn" style="width:200px;" id="el_reversal">
+          <div class="wt">Immediate Reversal</div>
+          Per reversal table<br>
+          Target: 60 min
+        </div>
+        <div class="action" style="width:170px;" id="el_std_mgmt">
+          <div class="at">Standard TBI</div>
+          Management per<br>BIG classification
+        </div>
+      </div>
+    </div>
+    <div class="action" style="width:200px;margin-top:20px;" id="el_std_workup">
+      <div class="at">Standard Workup</div>
+      Per injury pattern
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- FRAILTY ASSESSMENT -->
+  <div class="row flow" id="el_frailty"><div class="step" style="width:400px;"><div class="ttl">Frailty Assessment — Rockwood CFS</div><div class="sub">Complete within 24 hours of admission</div></div></div>
+  <div class="sp"></div>
+
+  <!-- CFS SCORE DIAMOND -->
+  <div class="diamond-wrap flow" id="el_cfs"><div class="diamond" style="width:150px;height:150px;"><div class="diamond-inner"><div class="q">CFS Score?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <!-- CFS TIERS -->
+  <div style="display:flex;justify-content:center;gap:14px;" class="flow" id="el_cfs_row">
+    <div class="cfs-card cfs1" style="width:230px;" id="el_cfs1">
+      <div class="ct">CFS 1–4</div>
+      <div class="cs">Standard Trauma Management</div>
+      Full resuscitation<br>
+      Standard surgical indications
+    </div>
+    <div class="cfs-card cfs2" style="width:230px;" id="el_cfs2">
+      <div class="ct">CFS 5–6</div>
+      <div class="cs">Modified Approach</div>
+      Lower ICU threshold<br>
+      Delirium prevention protocol<br>
+      PT/OT consult day 1<br>
+      Social work screen
+    </div>
+    <div class="cfs-card cfs3" style="width:230px;" id="el_cfs3">
+      <div class="ct">CFS 7–8</div>
+      <div class="cs">Conservative Bias</div>
+      Early goals of care discussion<br>
+      Palliative care consult<br>
+      Conservative treatment bias
+    </div>
+    <div class="cfs-card cfs4" style="width:230px;" id="el_cfs4">
+      <div class="ct">CFS 9</div>
+      <div class="cs">Comfort-Focused</div>
+      Comfort-focused care<br>
+      Goals of care discussion<br>
+      with family
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- RIB FRACTURE CHECK -->
+  <div class="diamond-wrap flow" id="el_ribs"><div class="diamond" style="width:160px;height:160px;"><div class="diamond-inner"><div class="q">Rib fractures?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:80px;" class="flow" id="el_ribs_row">
+    <div class="icu" style="width:260px;" id="el_cwits">
+      <div class="it">CWITS-25-IS + Geriatric Modifier</div>
+      Score 4+ → consider ICU<br>
+      Score 7+ → consider SSRF<br>
+      Regional anesthesia within 12h
+    </div>
+    <div class="action" style="width:220px;" id="el_disp_injury">
+      <div class="at">Disposition per Injury</div>
+      Standard severity-based<br>
+      disposition criteria
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- ALL GERIATRIC FINAL BOX -->
+  <div class="row flow" id="el_allgeri">
+    <div class="step" style="width:520px;">
+      <div class="ttl">All Geriatric Patients</div>
+      <div class="sub">Reassess q12h &bull; CAM-ICU for delirium &bull; Fall risk assessment<br>Med reconciliation &bull; Early mobilization &bull; Nutrition screening</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on ACS-TQIP Geriatric Trauma Guidelines and Rockwood Clinical Frailty Scale &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart = document.getElementById('chart');
+  const svg = document.getElementById('connectors');
+  const W = chart.scrollWidth, H = chart.scrollHeight;
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.width = W+'px'; svg.style.height = H+'px';
+  const CR = chart.getBoundingClientRect();
+  const CX = W/2, mainColor = '#334155';
+
+  function r(id){const el=document.getElementById(id);if(!el)return null;const b=el.getBoundingClientRect();return{t:b.top-CR.top,b:b.bottom-CR.top,l:b.left-CR.left,r:b.right-CR.left,cx:(b.left+b.right)/2-CR.left,cy:(b.top+b.bottom)/2-CR.top};}
+  function line(x1,y1,x2,y2,c=mainColor,w=2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  function arrowHead(x,y,a,c=mainColor,s=8){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${x},${y} ${x-s*Math.cos(a-Math.PI/6)},${y-s*Math.sin(a-Math.PI/6)} ${x-s*Math.cos(a+Math.PI/6)},${y-s*Math.sin(a+Math.PI/6)}`);p.setAttribute('fill',c);svg.appendChild(p);}
+  function arrow(x1,y1,x2,y2,c=mainColor,w=2){line(x1,y1,x2,y2,c,w);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),c);}
+  function lPath(pts,c=mainColor,w=2,arr=true){for(let i=0;i<pts.length-1;i++)line(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],c,w);if(arr&&pts.length>=2){const[px,py]=pts[pts.length-2],[ex,ey]=pts[pts.length-1];arrowHead(ex,ey,Math.atan2(ey-py,ex-px),c);}}
+  function pill(x,y,t,c,bg){const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');const pw=t.length*9+18;fo.setAttribute('x',x-pw/2);fo.setAttribute('y',y-12);fo.setAttribute('width',pw);fo.setAttribute('height',24);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;font-size:12px;font-weight:800;color:${c};background:${bg};border:2px solid ${c};border-radius:12px;text-align:center;line-height:20px;width:${pw}px;height:24px;">${t}</div>`;svg.appendChild(fo);}
+  function dPts(id){const o=document.getElementById(id);const d=o.querySelector('.diamond');if(!d)return null;const b=d.getBoundingClientRect();const cx=(b.left+b.right)/2-CR.left,cy=(b.top+b.bottom)/2-CR.top;return{top:{x:cx,y:b.top-CR.top},bottom:{x:cx,y:b.bottom-CR.top},left:{x:b.left-CR.left,y:cy},right:{x:b.right-CR.left,y:cy}};}
+
+  const title=r('el_title'), entry=r('el_entry');
+  const shock=dPts('el_shock');
+  const upgrade=r('el_upgrade'), stdAct=r('el_standard_act');
+  const atls=r('el_atls');
+  const head=dPts('el_head');
+  const ctHead=r('el_ct_head'), stdWorkup=r('el_std_workup');
+  const ich=dPts('el_ich');
+  const reversal=r('el_reversal'), stdMgmt=r('el_std_mgmt');
+  const frailty=r('el_frailty');
+  const cfs=dPts('el_cfs');
+  const cfs1=r('el_cfs1'),cfs2=r('el_cfs2'),cfs3=r('el_cfs3'),cfs4=r('el_cfs4');
+  const ribs=dPts('el_ribs');
+  const cwits=r('el_cwits'), dispInj=r('el_disp_injury');
+  const allGeri=r('el_allgeri');
+
+  // Title → Entry → Shock diamond
+  arrow(CX, title.b, CX, entry.t, mainColor, 2.5);
+  arrow(CX, entry.b, shock.top.x, shock.top.y, mainColor, 2.5);
+
+  // Shock YES → Upgrade (left)
+  lPath([[shock.left.x,shock.left.y],[upgrade.cx,shock.left.y],[upgrade.cx,upgrade.t]],'#dc2626',2.5);
+  pill((shock.left.x+upgrade.cx)/2, shock.left.y, 'YES','#dc2626','#fef2f2');
+
+  // Shock NO → Standard (right)
+  lPath([[shock.right.x,shock.right.y],[stdAct.cx,shock.right.y],[stdAct.cx,stdAct.t]],'#16a34a',2.5);
+  pill((shock.right.x+stdAct.cx)/2, shock.right.y, 'NO','#16a34a','#f0fdf4');
+
+  // Both → merge → ATLS
+  const shockMerge = Math.max(upgrade.b, stdAct.b) + 12;
+  line(upgrade.cx,upgrade.b,upgrade.cx,shockMerge);
+  line(stdAct.cx,stdAct.b,stdAct.cx,shockMerge);
+  line(upgrade.cx,shockMerge,stdAct.cx,shockMerge);
+  arrow(CX,shockMerge,CX,atls.t,mainColor,2.5);
+
+  // ATLS → Head strike diamond
+  arrow(CX,atls.b,head.top.x,head.top.y,mainColor,2.5);
+
+  // Head YES → CT Head (left column)
+  lPath([[head.left.x,head.left.y],[ctHead.cx,head.left.y],[ctHead.cx,ctHead.t]],'#dc2626',2.5);
+  pill((head.left.x+ctHead.cx)/2, head.left.y, 'YES','#dc2626','#fef2f2');
+
+  // Head NO → Standard workup (right)
+  lPath([[head.right.x,head.right.y],[stdWorkup.cx,head.right.y],[stdWorkup.cx,stdWorkup.t]],'#16a34a',2.5);
+  pill((head.right.x+stdWorkup.cx)/2, head.right.y, 'NO','#16a34a','#f0fdf4');
+
+  // CT Head → ICH diamond
+  arrow(ctHead.cx,ctHead.b,ich.top.x,ich.top.y,mainColor,2);
+
+  // ICH YES → Reversal (left)
+  lPath([[ich.left.x,ich.left.y],[reversal.cx,ich.left.y],[reversal.cx,reversal.t]],'#dc2626',2);
+  pill((ich.left.x+reversal.cx)/2, ich.left.y, 'YES','#dc2626','#fef2f2');
+
+  // ICH NO → Std mgmt (right)
+  lPath([[ich.right.x,ich.right.y],[stdMgmt.cx,ich.right.y],[stdMgmt.cx,stdMgmt.t]],'#16a34a',2);
+  pill((ich.right.x+stdMgmt.cx)/2, ich.right.y, 'NO','#16a34a','#f0fdf4');
+
+  // All head paths → merge → Frailty
+  const headMerge = Math.max(reversal.b, stdMgmt.b, stdWorkup.b) + 14;
+  line(reversal.cx,reversal.b,reversal.cx,headMerge);
+  line(stdMgmt.cx,stdMgmt.b,stdMgmt.cx,headMerge);
+  line(stdWorkup.cx,stdWorkup.b,stdWorkup.cx,headMerge);
+  line(Math.min(reversal.cx,stdWorkup.cx)-10, headMerge, Math.max(reversal.cx,stdWorkup.cx)+10, headMerge);
+  arrow(CX,headMerge,CX,frailty.t,mainColor,2.5);
+
+  // Frailty → CFS diamond
+  arrow(CX,frailty.b,cfs.top.x,cfs.top.y,mainColor,2.5);
+
+  // CFS → fan to 4 tiers
+  const cfsBus = cfs.bottom.y + 14;
+  line(cfs.bottom.x,cfs.bottom.y,cfs.bottom.x,cfsBus);
+  line(cfs1.cx,cfsBus,cfs4.cx,cfsBus);
+  arrow(cfs1.cx,cfsBus,cfs1.cx,cfs1.t);
+  arrow(cfs2.cx,cfsBus,cfs2.cx,cfs2.t);
+  arrow(cfs3.cx,cfsBus,cfs3.cx,cfs3.t);
+  arrow(cfs4.cx,cfsBus,cfs4.cx,cfs4.t);
+  // Labels on the bus
+  pill(cfs1.cx, cfsBus, '1-4','#10b981','#ecfdf5');
+  pill(cfs2.cx, cfsBus, '5-6','#3b82f6','#eff6ff');
+  pill(cfs3.cx, cfsBus, '7-8','#f97316','#fff7ed');
+  pill(cfs4.cx, cfsBus, '9','#ef4444','#fef2f2');
+
+  // All CFS → merge → Ribs diamond
+  const cfsMerge = Math.max(cfs1.b,cfs2.b,cfs3.b,cfs4.b) + 14;
+  for(const c of [cfs1,cfs2,cfs3,cfs4]) line(c.cx,c.b,c.cx,cfsMerge,mainColor,1.5);
+  line(cfs1.cx,cfsMerge,cfs4.cx,cfsMerge);
+  arrow(CX,cfsMerge,ribs.top.x,ribs.top.y,mainColor,2.5);
+
+  // Ribs YES → CWITS (left)
+  lPath([[ribs.left.x,ribs.left.y],[cwits.cx,ribs.left.y],[cwits.cx,cwits.t]],'#dc2626',2.5);
+  pill((ribs.left.x+cwits.cx)/2, ribs.left.y, 'YES','#dc2626','#fef2f2');
+
+  // Ribs NO → Disposition (right)
+  lPath([[ribs.right.x,ribs.right.y],[dispInj.cx,ribs.right.y],[dispInj.cx,dispInj.t]],'#16a34a',2.5);
+  pill((ribs.right.x+dispInj.cx)/2, ribs.right.y, 'NO','#16a34a','#f0fdf4');
+
+  // Both → merge → All Geriatric
+  const ribsMerge = Math.max(cwits.b,dispInj.b) + 14;
+  line(cwits.cx,cwits.b,cwits.cx,ribsMerge);
+  line(dispInj.cx,dispInj.b,dispInj.cx,ribsMerge);
+  line(cwits.cx,ribsMerge,dispInj.cx,ribsMerge);
+  arrow(CX,ribsMerge,CX,allGeri.t,mainColor,2.5);
+});
+</script>
+</body>
+</html>

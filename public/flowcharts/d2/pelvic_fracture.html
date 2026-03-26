@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pelvic Fracture Algorithm</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; width: 1200px; color: #1e293b; }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+  .title-bar { background: linear-gradient(135deg, #0f2b46, #1a4971); color: white; text-align: center; padding: 20px 40px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3); width: 560px; margin: 0 auto; }
+  .title-bar h1 { font-size: 24px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+  .step { background: linear-gradient(135deg, #0a6b8a, #0e7c9e); color: white; text-align: center; padding: 12px 22px; border-radius: 10px; display: inline-block; box-shadow: 0 3px 12px rgba(10,107,138,0.25); }
+  .step .ttl { font-size: 16px; font-weight: 700; } .step .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .diamond-wrap { display: flex; justify-content: center; }
+  .diamond { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #d97706; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(217,119,6,0.15); }
+  .diamond-inner { transform: rotate(-45deg); text-align: center; padding: 8px; }
+  .diamond-inner .q { font-size: 13px; font-weight: 700; color: #92400e; line-height: 1.3; }
+  .diamond-inner .qs { font-size: 11px; font-weight: 500; color: #a16207; font-style: italic; }
+  .action { background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9; color: #0c4a6e; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(14,165,233,0.1); font-size: 12.5px; line-height: 1.5; }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .warn { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #f87171; border-left: 4px solid #dc2626; color: #991b1b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(220,38,38,0.1); font-size: 12.5px; line-height: 1.5; }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .icu { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.5; }
+  .icu .it { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .outcome { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981; color: #064e3b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(16,185,129,0.1); font-size: 12.5px; line-height: 1.5; }
+  .outcome .ot { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .sp { height: 22px; } .sp-sm { height: 14px; } .sp-lg { height: 28px; }
+  .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1; line-height: 1.6; }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>Pelvic Fracture Algorithm</h1><p>Hemodynamically Significant Pelvic Fractures &bull; Hemorrhage Control</p></div></div>
+  <div class="sp"></div>
+
+  <div class="row flow" id="el_entry"><div class="step" style="width:520px;"><div class="ttl">Pelvic Fracture Identified — AP Pelvis X-ray</div><div class="sub">Pelvic binder applied if: SBP &lt; 90, OB mechanism, lateral compression, or unknown mechanism</div></div></div>
+  <div class="sp"></div>
+
+  <!-- HEMODYNAMIC RESPONSE -->
+  <div class="diamond-wrap flow" id="el_hemo"><div class="diamond" style="width:210px;height:210px;"><div class="diamond-inner"><div class="q">Hemodynamic<br>response to<br>resuscitation?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <!-- THREE RESPONSE CATEGORIES -->
+  <div style="display:flex;justify-content:center;gap:16px;align-items:flex-start;" class="flow" id="el_response_row">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:320px;" id="el_nonresp_col">
+      <div class="warn" style="width:300px;" id="el_nonresp">
+        <div class="wt">Non-Responder</div>
+        Persistent hemodynamic instability<br>
+        Activate MTP &bull; FAST exam
+      </div>
+      <div class="diamond-wrap" id="el_fast"><div class="diamond" style="width:140px;height:140px;"><div class="diamond-inner"><div class="q">FAST<br>positive?</div></div></div></div>
+      <div style="display:flex;gap:10px;">
+        <div class="warn" style="width:140px;" id="el_laparotomy">
+          <div class="wt">Laparotomy</div>
+          Address intra-<br>abdominal source
+        </div>
+        <div class="warn" style="width:140px;" id="el_ppp">
+          <div class="wt">PPP</div>
+          Preperitoneal<br>packing (first-line)
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:280px;" id="el_transient_col">
+      <div class="icu" style="width:260px;" id="el_transient">
+        <div class="it">Transient Responder</div>
+        Initial response then re-deterioration<br>
+        High index of suspicion<br>
+        <strong>Consider REBOA</strong> as temporizing measure
+      </div>
+      <div class="action" style="width:260px;" id="el_reboa">
+        <div class="at">REBOA (Zone III)</div>
+        Temporizing bridge to definitive<br>
+        hemorrhage control<br>
+        Max inflation time: 60–90 min
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:320px;" id="el_resp_col">
+      <div class="outcome" style="width:300px;" id="el_responder">
+        <div class="ot">Responder</div>
+        SBP &gt; 90 after resuscitation<br>
+        Hemodynamically stable
+      </div>
+      <div class="action" style="width:280px;" id="el_ct_angio">
+        <div class="at">CT Angiography</div>
+        Classify fracture (Young-Burgess)<br>
+        Identify arterial extravasation<br>
+        Assess for associated injuries
+      </div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- ANGIOEMBOLIZATION -->
+  <div class="diamond-wrap flow" id="el_blush"><div class="diamond" style="width:190px;height:190px;"><div class="diamond-inner"><div class="q">Active arterial<br>extravasation<br>on CTA?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:80px;" class="flow" id="el_blush_row">
+    <div class="warn" style="width:260px;" id="el_angio_yes">
+      <div class="wt">Angioembolization</div>
+      IR consult emergently<br>
+      Selective embolization<br>
+      Can be combined with PPP
+    </div>
+    <div class="action" style="width:240px;" id="el_angio_no">
+      <div class="at">External Fixation / Monitoring</div>
+      Mechanically unstable fractures<br>(APC II/III, VS) → external fixation<br>
+      LC fractures → observe with binder
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- DEFINITIVE CARE -->
+  <div class="row flow" id="el_definitive">
+    <div class="step" style="width:520px;">
+      <div class="ttl">Definitive Management</div>
+      <div class="sub">Orthopedic consult for definitive fixation &bull; ICU admission for unstable patterns<br>
+      VTE prophylaxis within 24h post-op &bull; Urological workup if blood at meatus</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on WTA Critical Decisions 2021 and EAST Pelvic Fracture Guidelines &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart=document.getElementById('chart'),svg=document.getElementById('connectors');
+  const W=chart.scrollWidth,H=chart.scrollHeight;
+  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width=W+'px';svg.style.height=H+'px';
+  const CR=chart.getBoundingClientRect(),CX=W/2,mc='#334155';
+  function r(id){const el=document.getElementById(id);if(!el)return null;const b=el.getBoundingClientRect();return{t:b.top-CR.top,b:b.bottom-CR.top,l:b.left-CR.left,r:b.right-CR.left,cx:(b.left+b.right)/2-CR.left,cy:(b.top+b.bottom)/2-CR.top};}
+  function line(x1,y1,x2,y2,c=mc,w=2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  function arrowHead(x,y,a,c=mc,s=8){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${x},${y} ${x-s*Math.cos(a-Math.PI/6)},${y-s*Math.sin(a-Math.PI/6)} ${x-s*Math.cos(a+Math.PI/6)},${y-s*Math.sin(a+Math.PI/6)}`);p.setAttribute('fill',c);svg.appendChild(p);}
+  function arrow(x1,y1,x2,y2,c=mc,w=2){line(x1,y1,x2,y2,c,w);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),c);}
+  function lPath(pts,c=mc,w=2){for(let i=0;i<pts.length-1;i++)line(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],c,w);if(pts.length>=2){const[px,py]=pts[pts.length-2],[ex,ey]=pts[pts.length-1];arrowHead(ex,ey,Math.atan2(ey-py,ex-px),c);}}
+  function pill(x,y,t,c,bg){const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');const pw=t.length*9+18;fo.setAttribute('x',x-pw/2);fo.setAttribute('y',y-12);fo.setAttribute('width',pw);fo.setAttribute('height',24);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;font-size:12px;font-weight:800;color:${c};background:${bg};border:2px solid ${c};border-radius:12px;text-align:center;line-height:20px;width:${pw}px;height:24px;">${t}</div>`;svg.appendChild(fo);}
+  function dPts(id){const o=document.getElementById(id);const d=o.querySelector('.diamond');if(!d)return null;const b=d.getBoundingClientRect();const cx=(b.left+b.right)/2-CR.left,cy=(b.top+b.bottom)/2-CR.top;return{top:{x:cx,y:b.top-CR.top},bottom:{x:cx,y:b.bottom-CR.top},left:{x:b.left-CR.left,y:cy},right:{x:b.right-CR.left,y:cy}};}
+
+  const title=r('el_title'),entry=r('el_entry'),hemo=dPts('el_hemo');
+  const nonresp=r('el_nonresp'),transient=r('el_transient'),responder=r('el_responder');
+  const nonrespCol=r('el_nonresp_col'),transientCol=r('el_transient_col'),respCol=r('el_resp_col');
+  const fast=dPts('el_fast'),laparotomy=r('el_laparotomy'),ppp=r('el_ppp');
+  const blush=dPts('el_blush'),angioYes=r('el_angio_yes'),angioNo=r('el_angio_no');
+  const definitive=r('el_definitive');
+
+  arrow(CX,title.b,CX,entry.t,mc,2.5);
+  arrow(CX,entry.b,hemo.top.x,hemo.top.y,mc,2.5);
+
+  // Fan to 3 response categories
+  const fanY=hemo.bottom.y+14;
+  line(hemo.bottom.x,hemo.bottom.y,hemo.bottom.x,fanY);
+  line(nonrespCol.cx,fanY,respCol.cx,fanY);
+  arrow(nonrespCol.cx,fanY,nonrespCol.cx,nonresp.t);
+  arrow(transientCol.cx,fanY,transientCol.cx,transient.t);
+  arrow(respCol.cx,fanY,respCol.cx,responder.t);
+
+  // Internal connectors
+  arrow(nonresp.cx,nonresp.b,fast.top.x,fast.top.y);
+  // FAST YES → Laparotomy, NO → PPP
+  if(fast){
+    lPath([[fast.left.x,fast.left.y],[laparotomy.cx,fast.left.y],[laparotomy.cx,laparotomy.t]],'#dc2626',2);
+    pill(fast.left.x-20,fast.left.y,'(+)','#dc2626','#fef2f2');
+    lPath([[fast.right.x,fast.right.y],[ppp.cx,fast.right.y],[ppp.cx,ppp.t]],'#f97316',2);
+    pill(fast.right.x+20,fast.right.y,'(−)','#f97316','#fff7ed');
+  }
+
+  arrow(transient.cx,transient.b,transient.cx,transient.b+10);
+  arrow(responder.cx,responder.b,responder.cx,responder.b+10);
+
+  // All paths → merge → Blush check
+  const respMerge=Math.max(nonrespCol.b,transientCol.b,respCol.b)+14;
+  // Only stable/transient paths go to angio check
+  arrow(respCol.cx,respCol.b,blush.top.x,blush.top.y,mc,2);
+
+  // Blush YES → Angio, NO → Ext fix
+  lPath([[blush.left.x,blush.left.y],[angioYes.cx,blush.left.y],[angioYes.cx,angioYes.t]],'#dc2626',2.5);
+  pill((blush.left.x+angioYes.cx)/2,blush.left.y,'YES','#dc2626','#fef2f2');
+  lPath([[blush.right.x,blush.right.y],[angioNo.cx,blush.right.y],[angioNo.cx,angioNo.t]],'#16a34a',2.5);
+  pill((blush.right.x+angioNo.cx)/2,blush.right.y,'NO','#16a34a','#f0fdf4');
+
+  // Both → merge → Definitive
+  const blushMerge=Math.max(angioYes.b,angioNo.b)+14;
+  line(angioYes.cx,angioYes.b,angioYes.cx,blushMerge);
+  line(angioNo.cx,angioNo.b,angioNo.cx,blushMerge);
+  line(angioYes.cx,blushMerge,angioNo.cx,blushMerge);
+  arrow(CX,blushMerge,CX,definitive.t,mc,2.5);
+});
+</script>
+</body>
+</html>

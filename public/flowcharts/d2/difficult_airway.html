@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Difficult Airway Algorithm</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; width: 1200px; color: #1e293b; }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+  .title-bar { background: linear-gradient(135deg, #0f2b46, #1a4971); color: white; text-align: center; padding: 20px 40px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3); width: 560px; margin: 0 auto; }
+  .title-bar h1 { font-size: 24px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+  .step { background: linear-gradient(135deg, #0a6b8a, #0e7c9e); color: white; text-align: center; padding: 12px 22px; border-radius: 10px; display: inline-block; box-shadow: 0 3px 12px rgba(10,107,138,0.25); }
+  .step .ttl { font-size: 16px; font-weight: 700; } .step .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .action { background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9; color: #0c4a6e; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(14,165,233,0.1); font-size: 12.5px; line-height: 1.5; }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .warn { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #f87171; border-left: 4px solid #dc2626; color: #991b1b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(220,38,38,0.1); font-size: 12.5px; line-height: 1.5; }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .outcome { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981; color: #064e3b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(16,185,129,0.1); font-size: 12.5px; line-height: 1.5; }
+  .outcome .ot { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  /* CICO emergency box */
+  .cico { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 14px 18px; border-radius: 10px; text-align: center; display: inline-block; box-shadow: 0 4px 16px rgba(185,28,28,0.3); font-size: 13px; line-height: 1.5; }
+  .cico .ct { font-size: 18px; font-weight: 800; margin-bottom: 4px; letter-spacing: 1px; }
+  /* Attempt boxes */
+  .attempt { border-radius: 10px; padding: 12px 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-size: 12.5px; line-height: 1.5; }
+  .att1 { background: #ecfdf5; border: 2px solid #6ee7b7; border-top: 4px solid #10b981; color: #064e3b; }
+  .att2 { background: #eff6ff; border: 2px solid #93c5fd; border-top: 4px solid #3b82f6; color: #1e3a8a; }
+  .att3 { background: #fff7ed; border: 2px solid #fdba74; border-top: 4px solid #f97316; color: #7c2d12; }
+  .attempt .an { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .attempt .at2 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  /* Drug box */
+  .drug { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: left; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.6; }
+  .drug .dt { font-size: 14px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+  .sp { height: 22px; } .sp-sm { height: 14px; } .sp-lg { height: 28px; }
+  .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1; line-height: 1.6; }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>Difficult Airway Algorithm</h1><p>Trauma Airway Management &bull; Adapted for Emergency/Trauma Setting</p></div></div>
+  <div class="sp"></div>
+
+  <!-- ASSESSMENT -->
+  <div class="row flow" id="el_assess"><div class="step" style="width:520px;"><div class="ttl">Airway Assessment</div><div class="sub">LEMON assessment &bull; Predictors: short neck, limited mouth opening, facial trauma, C-spine injury, blood/secretions</div></div></div>
+  <div class="sp-sm"></div>
+
+  <!-- DOUBLE SETUP -->
+  <div class="row flow" id="el_setup"><div class="warn" style="width:500px;"><div class="wt">⚠ DOUBLE SETUP — Prepare for Surgical Airway Simultaneously</div>Surgical cricothyrotomy kit open and ready &bull; Call for help early &bull; Designate team roles</div></div>
+  <div class="sp"></div>
+
+  <!-- RSI -->
+  <div style="display:flex;justify-content:center;gap:20px;" class="flow" id="el_rsi_row">
+    <div class="step" style="width:340px;" id="el_rsi">
+      <div class="ttl">RSI — Rapid Sequence Intubation</div>
+      <div class="sub">Pre-oxygenation &bull; Apneic oxygenation (15L NC)</div>
+    </div>
+    <div class="drug" style="width:280px;" id="el_drugs">
+      <div class="dt">RSI Medications</div>
+      <strong>Ketamine</strong> 1.5–2 mg/kg IV<br>
+      <strong>Succinylcholine</strong> 1.5 mg/kg IV<br>
+      <em>or</em> <strong>Rocuronium</strong> 1.2 mg/kg IV<br>
+      <span style="font-size:11px;">Avoid etomidate if adrenal concerns</span>
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <!-- THREE ATTEMPTS -->
+  <div style="display:flex;justify-content:center;gap:14px;" class="flow" id="el_attempts">
+    <div class="attempt att1" style="width:280px;" id="el_att1">
+      <div class="an">Attempt 1</div>
+      <div class="at2">Video Laryngoscopy</div>
+      VL as primary device (preferred)<br>
+      Optimal positioning, external manipulation<br>
+      Bougie available
+    </div>
+    <div class="attempt att2" style="width:280px;" id="el_att2">
+      <div class="an">Attempt 2</div>
+      <div class="at2">Adjust &amp; Retry</div>
+      Change blade size/type<br>
+      Reposition (ear-to-sternal notch)<br>
+      Bougie-assisted intubation<br>
+      Different operator
+    </div>
+    <div class="attempt att3" style="width:280px;" id="el_att3">
+      <div class="an">Attempt 3 — MAX</div>
+      <div class="at2">Supraglottic Airway (SGA)</div>
+      <strong>Insert LMA/i-gel as rescue</strong><br>
+      Oxygenate &amp; ventilate through SGA<br>
+      Consider intubation through SGA<br>
+      <strong>This is the last attempt before CICO</strong>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- SUCCESS OR CICO -->
+  <div style="display:flex;justify-content:center;gap:60px;align-items:flex-start;" class="flow" id="el_result_row">
+    <div class="outcome" style="width:300px;" id="el_success">
+      <div class="ot">Successful Intubation</div>
+      Confirm with <strong>ETCO2 waveform</strong><br>
+      Secure tube &bull; CXR confirmation<br>
+      Post-intubation sedation/analgesia<br>
+      Ventilator settings
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;" id="el_cico_col">
+      <div class="cico" style="width:340px;" id="el_cico">
+        <div class="ct">🚨 DECLARE CICO</div>
+        Can't Intubate, Can't Oxygenate<br>
+        SpO2 falling &bull; Unable to ventilate via SGA<br>
+        <strong>IMMEDIATE SURGICAL AIRWAY</strong>
+      </div>
+      <div class="warn" style="width:320px;" id="el_cric">
+        <div class="wt">Surgical Cricothyrotomy</div>
+        Scalpel-bougie-tube technique<br>
+        Vertical skin incision → horizontal membrane<br>
+        6.0 cuffed ETT or tracheostomy tube<br>
+        Confirm with ETCO2 waveform
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on ASA 2022 Difficult Airway Guidelines and DAS 2015 &bull; Adapted for trauma setting &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart=document.getElementById('chart'),svg=document.getElementById('connectors');
+  const W=chart.scrollWidth,H=chart.scrollHeight;
+  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width=W+'px';svg.style.height=H+'px';
+  const CR=chart.getBoundingClientRect(),CX=W/2,mc='#334155';
+  function r(id){const el=document.getElementById(id);if(!el)return null;const b=el.getBoundingClientRect();return{t:b.top-CR.top,b:b.bottom-CR.top,l:b.left-CR.left,r:b.right-CR.left,cx:(b.left+b.right)/2-CR.left,cy:(b.top+b.bottom)/2-CR.top};}
+  function line(x1,y1,x2,y2,c=mc,w=2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  function arrowHead(x,y,a,c=mc,s=8){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${x},${y} ${x-s*Math.cos(a-Math.PI/6)},${y-s*Math.sin(a-Math.PI/6)} ${x-s*Math.cos(a+Math.PI/6)},${y-s*Math.sin(a+Math.PI/6)}`);p.setAttribute('fill',c);svg.appendChild(p);}
+  function arrow(x1,y1,x2,y2,c=mc,w=2){line(x1,y1,x2,y2,c,w);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),c);}
+
+  const title=r('el_title'),assess=r('el_assess'),setup=r('el_setup');
+  const rsi=r('el_rsi'),att1=r('el_att1'),att2=r('el_att2'),att3=r('el_att3');
+  const success=r('el_success'),cico=r('el_cico'),cric=r('el_cric');
+
+  // Vertical spine: Title → Assess → Setup → RSI
+  arrow(CX,title.b,CX,assess.t,mc,2.5);
+  arrow(CX,assess.b,CX,setup.t,mc,2.5);
+  arrow(CX,setup.b,CX,rsi.t-2,mc,2.5);
+
+  // RSI → fan to attempts
+  const rsiBot=Math.max(r('el_rsi_row').b)+6;
+  const attBus=rsiBot+10;
+  line(CX,rsiBot,CX,attBus);
+  line(att1.cx,attBus,att3.cx,attBus);
+  arrow(att1.cx,attBus,att1.cx,att1.t);
+  arrow(att2.cx,attBus,att2.cx,att2.t);
+  arrow(att3.cx,attBus,att3.cx,att3.t);
+
+  // Attempts → horizontal progression arrows
+  arrow(att1.r+2,att1.cy,att2.l-2,att2.cy,'#334155',2);
+  arrow(att2.r+2,att2.cy,att3.l-2,att3.cy,'#dc2626',2);
+
+  // Success (from any attempt) and CICO (from attempt 3 failure)
+  const attBot=Math.max(att1.b,att2.b,att3.b)+14;
+  // Success arrow from left/center
+  arrow(att1.cx,att1.b,success.cx,success.t,'#16a34a',2.5);
+  // CICO arrow from attempt 3
+  arrow(att3.cx,att3.b,cico.cx,cico.t,'#dc2626',2.5);
+  // CICO → Cric
+  arrow(cico.cx,cico.b,cric.cx,cric.t,'#dc2626',2.5);
+});
+</script>
+</body>
+</html>

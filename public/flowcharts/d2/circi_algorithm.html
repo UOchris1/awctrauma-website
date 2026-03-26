@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CIRCI Algorithm</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; width: 1200px; color: #1e293b; }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+  .title-bar { background: linear-gradient(135deg, #0f2b46, #1a4971); color: white; text-align: center; padding: 20px 40px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3); width: 600px; margin: 0 auto; }
+  .title-bar h1 { font-size: 22px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+  .step { background: linear-gradient(135deg, #0a6b8a, #0e7c9e); color: white; text-align: center; padding: 12px 22px; border-radius: 10px; display: inline-block; box-shadow: 0 3px 12px rgba(10,107,138,0.25); }
+  .step .ttl { font-size: 16px; font-weight: 700; } .step .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .diamond-wrap { display: flex; justify-content: center; }
+  .diamond { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #d97706; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(217,119,6,0.15); }
+  .diamond-inner { transform: rotate(-45deg); text-align: center; padding: 8px; }
+  .diamond-inner .q { font-size: 13px; font-weight: 700; color: #92400e; line-height: 1.3; }
+  .action { background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9; color: #0c4a6e; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(14,165,233,0.1); font-size: 12.5px; line-height: 1.5; }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .warn { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #f87171; border-left: 4px solid #dc2626; color: #991b1b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(220,38,38,0.1); font-size: 12.5px; line-height: 1.5; }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .icu { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.5; }
+  .icu .it { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .outcome { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981; color: #064e3b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(16,185,129,0.1); font-size: 12.5px; line-height: 1.5; }
+  .outcome .ot { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .drug { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: left; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.6; }
+  .drug .dt { font-size: 14px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+  .note { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 8px; padding: 8px 14px; font-size: 11.5px; color: #92400e; text-align: center; display: inline-block; }
+  .sp { height: 22px; } .sp-sm { height: 14px; } .sp-lg { height: 28px; }
+  .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1; line-height: 1.6; }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>CIRCI — Adrenal Insufficiency Algorithm</h1><p>Critical Illness-Related Corticosteroid Insufficiency &bull; ICU Protocol</p></div></div>
+  <div class="sp"></div>
+
+  <!-- RISK ASSESSMENT -->
+  <div class="row flow" id="el_risk"><div class="step" style="width:520px;"><div class="ttl">Phase 1: Risk Assessment</div><div class="sub">Refractory septic shock despite fluids + vasopressors &bull; Recent/chronic steroid use &bull; Etomidate exposure</div></div></div>
+  <div class="sp"></div>
+
+  <div class="diamond-wrap flow" id="el_septic"><div class="diamond" style="width:200px;height:200px;"><div class="diamond-inner"><div class="q">Septic shock<br>refractory to<br>vasopressors?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:60px;align-items:flex-start;" class="flow" id="el_septic_row">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:420px;" id="el_yes_col">
+      <div class="warn" style="width:400px;" id="el_start_steroids">
+        <div class="wt">Start Empiric Hydrocortisone</div>
+        <strong>Do NOT delay treatment for cosyntropin test</strong><br>
+        Consider empiric treatment while awaiting results
+      </div>
+      <div class="drug" style="width:400px;" id="el_dosing">
+        <div class="dt">Phase 2: Treatment Protocol</div>
+        <strong>Hydrocortisone 50mg IV q6h</strong> (200mg/day)<br>
+        <em>or</em> continuous infusion 200mg/24h<br>
+        <strong>± Fludrocortisone 50mcg PO/NG daily</strong> (conditional)<br>
+        Monitor glucose q4h (steroid hyperglycemia)
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:380px;" id="el_no_col">
+      <div class="action" style="width:360px;" id="el_stim_test">
+        <div class="at">Consider Cosyntropin Stimulation Test</div>
+        Draw baseline cortisol → give Cosyntropin 250mcg IV<br>
+        Draw cortisol at 30 and 60 min<br>
+        <strong>Delta cortisol &lt; 9 mcg/dL = adrenal insufficiency</strong><br>
+        Random cortisol &lt; 10 mcg/dL = suggestive
+      </div>
+      <div class="note" style="width:360px;" id="el_etomidate_note">
+        ⚠ <strong>Etomidate</strong> causes adrenal suppression for 24–48h.<br>
+        If patient received etomidate, consider empiric<br>
+        stress-dose steroids regardless of stim test.
+      </div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- RESPONSE CHECK -->
+  <div class="diamond-wrap flow" id="el_response"><div class="diamond" style="width:200px;height:200px;"><div class="diamond-inner"><div class="q">Clinical response<br>within 24–48h?</div><div style="font-size:11px;font-weight:500;color:#a16207;font-style:italic;">Vasopressor wean,<br>hemodynamic improvement</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:80px;" class="flow" id="el_response_row">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;" id="el_resp_yes">
+      <div class="outcome" style="width:300px;" id="el_taper">
+        <div class="ot">Phase 3: Taper</div>
+        Continue hydrocortisone until vasopressors weaned<br>
+        Then taper over 5–7 days:<br>
+        50mg q6h → 50mg q8h → 50mg q12h → stop<br>
+        <strong>Do NOT stop abruptly</strong>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;" id="el_resp_no">
+      <div class="warn" style="width:280px;" id="el_reassess">
+        <div class="wt">Reassess Diagnosis</div>
+        Consider alternative causes of shock<br>
+        Rule out ongoing septic source<br>
+        Endocrine consult if unclear<br>
+        Contraindications: active fungal infection
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on SCCM/ESICM 2017 Guidelines for CIRCI &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart=document.getElementById('chart'),svg=document.getElementById('connectors');
+  const W=chart.scrollWidth,H=chart.scrollHeight;
+  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width=W+'px';svg.style.height=H+'px';
+  const CR=chart.getBoundingClientRect(),CX=W/2,mc='#334155';
+  function r(id){const el=document.getElementById(id);if(!el)return null;const b=el.getBoundingClientRect();return{t:b.top-CR.top,b:b.bottom-CR.top,l:b.left-CR.left,r:b.right-CR.left,cx:(b.left+b.right)/2-CR.left,cy:(b.top+b.bottom)/2-CR.top};}
+  function line(x1,y1,x2,y2,c=mc,w=2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  function arrowHead(x,y,a,c=mc,s=8){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${x},${y} ${x-s*Math.cos(a-Math.PI/6)},${y-s*Math.sin(a-Math.PI/6)} ${x-s*Math.cos(a+Math.PI/6)},${y-s*Math.sin(a+Math.PI/6)}`);p.setAttribute('fill',c);svg.appendChild(p);}
+  function arrow(x1,y1,x2,y2,c=mc,w=2){line(x1,y1,x2,y2,c,w);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),c);}
+  function lPath(pts,c=mc,w=2){for(let i=0;i<pts.length-1;i++)line(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],c,w);if(pts.length>=2){const[px,py]=pts[pts.length-2],[ex,ey]=pts[pts.length-1];arrowHead(ex,ey,Math.atan2(ey-py,ex-px),c);}}
+  function pill(x,y,t,c,bg){const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');const pw=t.length*9+18;fo.setAttribute('x',x-pw/2);fo.setAttribute('y',y-12);fo.setAttribute('width',pw);fo.setAttribute('height',24);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;font-size:12px;font-weight:800;color:${c};background:${bg};border:2px solid ${c};border-radius:12px;text-align:center;line-height:20px;width:${pw}px;height:24px;">${t}</div>`;svg.appendChild(fo);}
+  function dPts(id){const o=document.getElementById(id);const d=o.querySelector('.diamond');if(!d)return null;const b=d.getBoundingClientRect();const cx=(b.left+b.right)/2-CR.left,cy=(b.top+b.bottom)/2-CR.top;return{top:{x:cx,y:b.top-CR.top},bottom:{x:cx,y:b.bottom-CR.top},left:{x:b.left-CR.left,y:cy},right:{x:b.right-CR.left,y:cy}};}
+
+  const title=r('el_title'),risk=r('el_risk'),septic=dPts('el_septic');
+  const startSteroids=r('el_start_steroids'),stimTest=r('el_stim_test');
+  const yesCol=r('el_yes_col'),noCol=r('el_no_col');
+  const response=dPts('el_response');
+  const taper=r('el_taper'),reassess=r('el_reassess');
+
+  arrow(CX,title.b,CX,risk.t,mc,2.5);
+  arrow(CX,risk.b,septic.top.x,septic.top.y,mc,2.5);
+
+  lPath([[septic.left.x,septic.left.y],[yesCol.cx,septic.left.y],[yesCol.cx,startSteroids.t]],'#dc2626',2.5);
+  pill((septic.left.x+yesCol.cx)/2,septic.left.y,'YES','#dc2626','#fef2f2');
+
+  lPath([[septic.right.x,septic.right.y],[noCol.cx,septic.right.y],[noCol.cx,stimTest.t]],'#16a34a',2.5);
+  pill((septic.right.x+noCol.cx)/2,septic.right.y,'NO','#16a34a','#f0fdf4');
+
+  // Steroids → dosing (internal)
+  arrow(startSteroids.cx,startSteroids.b,startSteroids.cx,startSteroids.b+12);
+
+  // Both paths → merge → response check
+  const mergeSeptic=Math.max(yesCol.b,noCol.b)+14;
+  line(yesCol.cx,yesCol.b,yesCol.cx,mergeSeptic);
+  line(noCol.cx,noCol.b,noCol.cx,mergeSeptic);
+  line(yesCol.cx,mergeSeptic,noCol.cx,mergeSeptic);
+  arrow(CX,mergeSeptic,response.top.x,response.top.y,mc,2.5);
+
+  lPath([[response.left.x,response.left.y],[taper.cx,response.left.y],[taper.cx,taper.t]],'#16a34a',2.5);
+  pill((response.left.x+taper.cx)/2,response.left.y,'YES','#16a34a','#f0fdf4');
+
+  lPath([[response.right.x,response.right.y],[reassess.cx,response.right.y],[reassess.cx,reassess.t]],'#dc2626',2.5);
+  pill((response.right.x+reassess.cx)/2,response.right.y,'NO','#dc2626','#fef2f2');
+});
+</script>
+</body>
+</html>

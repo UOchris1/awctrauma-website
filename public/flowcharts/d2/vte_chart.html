@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VTE Prophylaxis Decision Tree</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #fff;
+    width: 1200px;
+    color: #1e293b;
+  }
+  .chart { position: relative; padding: 36px 40px 36px; }
+
+  .flow { position: relative; z-index: 2; }
+
+  #connectors {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .row { display: flex; justify-content: center; }
+  .col { display: flex; flex-direction: column; align-items: center; }
+  .gap10 { gap: 10px; }
+
+  /* Title */
+  .title-bar {
+    background: linear-gradient(135deg, #0f2b46, #1a4971);
+    color: white; text-align: center; padding: 22px 44px;
+    border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3);
+    width: 500px; margin: 0 auto;
+  }
+  .title-bar h1 { font-size: 25px; font-weight: 800; letter-spacing: -0.3px; }
+  .title-bar p { font-size: 14px; opacity: 0.75; margin-top: 3px; font-weight: 500; }
+
+  /* Step */
+  .step {
+    background: linear-gradient(135deg, #0a6b8a, #0e7c9e);
+    color: white; text-align: center; padding: 13px 26px;
+    border-radius: 10px; display: inline-block;
+    box-shadow: 0 3px 12px rgba(10,107,138,0.25);
+  }
+  .step .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.75; margin-bottom: 2px; }
+  .step .ttl { font-size: 17px; font-weight: 700; }
+  .step .sub { font-size: 12px; opacity: 0.85; margin-top: 3px; }
+
+  /* Diamond */
+  .diamond-wrap { display: flex; justify-content: center; }
+  .diamond {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 2.5px solid #d97706;
+    transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 12px rgba(217,119,6,0.18);
+  }
+  .diamond-inner { transform: rotate(-45deg); text-align: center; padding: 10px; }
+  .diamond-inner .q { font-size: 14px; font-weight: 700; color: #92400e; line-height: 1.4; }
+  .diamond-inner .qs { font-size: 11px; font-weight: 500; color: #a16207; margin-top: 2px; font-style: italic; }
+
+  /* Alert - dead end branch */
+  .alert-box {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border: 2px solid #f87171; border-left: 5px solid #dc2626;
+    color: #991b1b; text-align: center; padding: 12px 16px;
+    border-radius: 10px; display: inline-block;
+    box-shadow: 0 2px 8px rgba(220,38,38,0.12);
+    width: 260px;
+  }
+  .alert-box .at { font-size: 14px; font-weight: 700; }
+  .alert-box .as { font-size: 12.5px; margin-top: 3px; }
+  .alert-box .an { font-size: 11px; font-style: italic; margin-top: 5px; color: #b91c1c; }
+
+  /* Category cards */
+  .cats { display: grid; gap: 10px; max-width: 1080px; margin: 0 auto; }
+  .cats.r4 { grid-template-columns: repeat(4,1fr); }
+  .cats.r3 { grid-template-columns: repeat(3,1fr); max-width: 810px; margin-top: 10px; }
+  .cc {
+    background: #f0fdf4; border: 1.5px solid #86efac; border-top: 4px solid #22c55e;
+    border-radius: 10px; padding: 11px 10px; text-align: center;
+    box-shadow: 0 2px 6px rgba(34,197,94,0.1);
+  }
+  .cc .ct { font-size: 13.5px; font-weight: 700; color: #14532d; margin-bottom: 3px; }
+  .cc .cm { font-size: 13px; font-weight: 600; color: #15803d; }
+  .cc .cn { font-size: 11.5px; color: #166534; margin-top: 2px; font-style: italic; }
+
+  /* Monitor / action blocks */
+  .mon-box {
+    background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+    border: 1.5px solid #c084fc; border-left: 5px solid #9333ea;
+    color: #581c87; padding: 12px 16px; border-radius: 10px;
+    text-align: center; display: inline-block;
+    box-shadow: 0 2px 8px rgba(147,51,234,0.1);
+  }
+  .mon-box .mt { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+  .mon-box ul { list-style: none; text-align: left; font-size: 12px; line-height: 1.5; }
+  .mon-box ul li::before { content: "•"; color: #9333ea; font-weight: bold; margin-right: 6px; }
+
+  .act-box {
+    background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+    border: 1.5px solid #c084fc; color: #581c87;
+    padding: 10px 16px; border-radius: 10px; text-align: center;
+    display: inline-block; box-shadow: 0 2px 8px rgba(147,51,234,0.1);
+  }
+  .act-box .at2 { font-size: 14px; font-weight: 700; }
+  .act-box .as2 { font-size: 12px; margin-top: 2px; }
+
+  .cont-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1.5px solid #93c5fd; border-left: 5px solid #2563eb;
+    color: #1e3a8a; padding: 14px 22px; border-radius: 10px;
+    text-align: center; display: inline-block;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.1);
+  }
+  .cont-box .ct2 { font-size: 15px; font-weight: 700; }
+  .cont-box .cs2 { font-size: 12px; margin-top: 2px; }
+
+  /* Spacers */
+  .sp { height: 28px; }
+  .sp-sm { height: 18px; }
+  .sp-md { height: 24px; }
+  .sp-lg { height: 34px; }
+
+  .footer {
+    text-align: center; font-size: 12px; color: #64748b;
+    margin-top: 16px; padding-top: 10px; border-top: 1.5px solid #cbd5e1;
+    line-height: 1.6;
+  }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+
+  /* Dosing table */
+  .dose-table {
+    margin: 0 auto; border-collapse: collapse;
+    font-size: 12.5px; width: 500px;
+    box-shadow: 0 2px 8px rgba(10,107,138,0.1);
+    border-radius: 8px; overflow: hidden;
+  }
+  .dose-table th {
+    background: linear-gradient(135deg, #0a6b8a, #0e7c9e);
+    color: white; padding: 7px 14px; font-weight: 700; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .dose-table td {
+    padding: 5px 14px; text-align: center; border-bottom: 1px solid #e2e8f0;
+    color: #334155; font-weight: 500;
+  }
+  .dose-table tr:nth-child(even) td { background: #f8fafc; }
+  .dose-table tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+
+  <svg id="connectors"></svg>
+
+  <!-- TITLE -->
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>VTE Prophylaxis Decision Tree</h1><p>Trauma / Orthopedic Patients</p></div></div>
+  <div class="sp-md"></div>
+
+  <!-- ADMISSION -->
+  <div class="row flow" id="el_admission"><div class="step" style="min-width:340px;"><div class="ttl">Trauma / Ortho Admission — Age ≥ 15</div></div></div>
+  <div class="sp-sm"></div>
+
+  <!-- STEP 1 -->
+  <div class="row flow" id="el_step1"><div class="step" style="min-width:300px;"><div class="lbl">Step 1</div><div class="ttl">SCDs ON Immediately</div></div></div>
+  <div class="sp-md"></div>
+
+  <!-- DECISION 1: centered on main spine -->
+  <div class="diamond-wrap flow" id="el_d1"><div class="diamond" style="width:190px;height:190px;"><div class="diamond-inner"><div class="q">Active bleeding OR<br>absolute contra-<br>indication?</div></div></div></div>
+  <div class="sp-lg" style="height:42px;"></div>
+
+  <!-- BRANCH ROW 1: Mech (left) + Step 2 (right) — both offset from center equally -->
+  <div style="display:flex;justify-content:center;gap:140px;align-items:flex-start;" class="flow">
+    <div style="text-align:center;" id="el_mech">
+      <div class="alert-box">
+        <div class="at">Mechanical Prophylaxis Only</div>
+        <div class="as">SCDs + reassess q12h</div>
+        <div class="an">↻ Reassess for chemical prophylaxis eligibility</div>
+      </div>
+    </div>
+    <div style="text-align:center;" id="el_step2">
+      <div class="step" style="min-width:290px;">
+        <div class="lbl">Step 2</div>
+        <div class="ttl">Determine Timing by Injury</div>
+      </div>
+    </div>
+  </div>
+  <div class="sp" style="height:36px;"></div>
+
+  <!-- DECISION 2: centered -->
+  <div class="diamond-wrap flow" id="el_d2"><div class="diamond" style="width:210px;height:210px;"><div class="diamond-inner"><div class="q">Injury Category?</div><div class="qs">If multiple, use most<br>conservative timing</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <!-- CATEGORY ROW 1 -->
+  <div class="flow" id="el_catrow1">
+    <div class="cats r4">
+      <div class="cc" id="el_c1"><div class="ct">TBI — BIG 1–2</div><div class="cm">Start within 24h</div><div class="cn">Standard dose</div></div>
+      <div class="cc" id="el_c2"><div class="ct">TBI — BIG 3</div><div class="cm">Start 24–72h</div><div class="cn">Reduced dose × 72h</div></div>
+      <div class="cc" id="el_c3"><div class="ct">Solid Organ I–III</div><div class="cm">Start within 24h</div></div>
+      <div class="cc" id="el_c4"><div class="ct">Solid Organ IV–V</div><div class="cm">Start 24–48h</div><div class="cn">When hemodynamically stable</div></div>
+    </div>
+  </div>
+
+  <!-- CATEGORY ROW 2 -->
+  <div class="flow" id="el_catrow2">
+    <div class="cats r3">
+      <div class="cc" id="el_c5"><div class="ct">SCI</div><div class="cm">Start within 48h</div></div>
+      <div class="cc" id="el_c6"><div class="ct">Pelvic / Long Bone Fx</div><div class="cm">Within 24h post-op</div></div>
+      <div class="cc" id="el_c7"><div class="ct">Hip Fracture</div><div class="cm">6–12h post-op</div></div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- STEP 3 -->
+  <div class="row flow" id="el_step3"><div class="step" style="min-width:420px;"><div class="lbl">Step 3</div><div class="ttl">Weight-Based Enoxaparin Dose</div><div class="sub">0.5 mg/kg SC q12h — Round DOWN to nearest 10 mg</div></div></div>
+  <div class="sp-md"></div>
+
+  <!-- DOSING TABLE -->
+  <div class="row flow" id="el_dosetable">
+    <table class="dose-table">
+      <tr><th>Weight (kg)</th><th>Dose</th><th>Weight (kg)</th><th>Dose</th></tr>
+      <tr><td>40–59</td><td>20 mg q12h</td><td>100–119</td><td>50 mg q12h</td></tr>
+      <tr><td>60–79</td><td>30 mg q12h</td><td>120–139</td><td>60 mg q12h</td></tr>
+      <tr><td>80–99</td><td>40 mg q12h</td><td>≥ 140</td><td>70 mg q12h</td></tr>
+    </table>
+  </div>
+  <div class="sp" style="height:30px;"></div>
+
+  <!-- DECISION 3 -->
+  <div class="diamond-wrap flow" id="el_d3"><div class="diamond" style="width:175px;height:175px;"><div class="diamond-inner"><div class="q">High-risk for<br>monitoring?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <!-- BRANCH 3: YES left, NO right -->
+  <div style="display:flex;justify-content:center;gap:130px;align-items:flex-start;" class="flow">
+    <div class="col gap10" id="el_yesmon">
+      <div class="mon-box" style="width:240px;" id="el_criteria">
+        <div class="mt">High-Risk Criteria</div>
+        <ul><li>BMI ≥ 40</li><li>Weight > 100 kg</li><li>CrCl 15–29 mL/min</li><li>TBI / SCI on reduced dose</li></ul>
+      </div>
+      <div class="act-box" style="width:240px;" id="el_antixa">
+        <div class="at2">Order Anti-Xa Level</div>
+        <div class="as2">4h after 3rd dose<br>Target: 0.2–0.4 IU/mL</div>
+      </div>
+    </div>
+    <div class="col" style="padding-top:28px;" id="el_contbox">
+      <div class="cont-box" id="el_continue">
+        <div class="ct2">Continue</div>
+        <div class="cs2">Weight-based dosing</div>
+      </div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- STEP 4 -->
+  <div class="row flow" id="el_step4"><div class="step" style="min-width:380px;"><div class="lbl">Step 4</div><div class="ttl">Discharge Planning</div><div class="sub">Check Duration Table for extended prophylaxis indications</div></div></div>
+
+  <div class="footer">
+    Based on EAST Guidelines, ACS TQIP Best Practices, and BIG Classification &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart = document.getElementById('chart');
+  const svg = document.getElementById('connectors');
+  const W = chart.scrollWidth;
+  const H = chart.scrollHeight;
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.width = W + 'px';
+  svg.style.height = H + 'px';
+
+  const CR = chart.getBoundingClientRect();
+  function r(id) {
+    const el = document.getElementById(id);
+    const b = el.getBoundingClientRect();
+    return {
+      t: b.top - CR.top, b: b.bottom - CR.top,
+      l: b.left - CR.left, r: b.right - CR.left,
+      cx: (b.left + b.right) / 2 - CR.left,
+      cy: (b.top + b.bottom) / 2 - CR.top,
+      w: b.width, h: b.height
+    };
+  }
+
+  function line(x1,y1,x2,y2,color='#334155',w=2,dash=false) {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+    l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke',color); l.setAttribute('stroke-width',w);
+    l.setAttribute('stroke-linecap','round');
+    if(dash) l.setAttribute('stroke-dasharray','6,4');
+    svg.appendChild(l);
+  }
+
+  function arrowHead(x,y,angle,color='#334155',size=8) {
+    const a1x = x - size*Math.cos(angle-Math.PI/6);
+    const a1y = y - size*Math.sin(angle-Math.PI/6);
+    const a2x = x - size*Math.cos(angle+Math.PI/6);
+    const a2y = y - size*Math.sin(angle+Math.PI/6);
+    const p = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    p.setAttribute('points',`${x},${y} ${a1x},${a1y} ${a2x},${a2y}`);
+    p.setAttribute('fill',color);
+    svg.appendChild(p);
+  }
+
+  function arrow(x1,y1,x2,y2,color='#334155',w=2) {
+    line(x1,y1,x2,y2,color,w);
+    arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),color);
+  }
+
+  function lPath(pts,color='#334155',w=2,addArrow=true) {
+    for(let i=0;i<pts.length-1;i++) line(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],color,w);
+    if(addArrow && pts.length>=2) {
+      const [px,py]=pts[pts.length-2], [ex,ey]=pts[pts.length-1];
+      arrowHead(ex,ey,Math.atan2(ey-py,ex-px),color);
+    }
+  }
+
+  function pill(x,y,text,color,bg) {
+    const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+    const pw = text.length * 9 + 18;
+    fo.setAttribute('x',x-pw/2); fo.setAttribute('y',y-12);
+    fo.setAttribute('width',pw); fo.setAttribute('height',24);
+    fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="
+      font-family:Inter,sans-serif;font-size:12px;font-weight:800;
+      color:${color};background:${bg};border:2px solid ${color};
+      border-radius:12px;text-align:center;line-height:20px;
+      width:${pw}px;height:24px;
+    ">${text}</div>`;
+    svg.appendChild(fo);
+  }
+
+  function dPts(id) {
+    const outer = document.getElementById(id);
+    const d = outer.querySelector('.diamond');
+    const b = d.getBoundingClientRect();
+    const cx = (b.left + b.right) / 2 - CR.left;
+    const cy = (b.top + b.bottom) / 2 - CR.top;
+    return {
+      top: { x: cx, y: b.top - CR.top },
+      bottom: { x: cx, y: b.bottom - CR.top },
+      left: { x: b.left - CR.left, y: cy },
+      right: { x: b.right - CR.left, y: cy }
+    };
+  }
+
+  // ══════════════════════════════════════
+  // REFERENCES
+  // ══════════════════════════════════════
+  const CX = W / 2; // chart center X — the main spine
+
+  const title = r('el_title');
+  const adm = r('el_admission');
+  const s1 = r('el_step1');
+  const d1 = dPts('el_d1');
+  const mech = r('el_mech');
+  const s2 = r('el_step2');
+  const d2 = dPts('el_d2');
+  const s3 = r('el_step3');
+  const doseT = r('el_dosetable');
+  const d3 = dPts('el_d3');
+  const s4 = r('el_step4');
+  const criteria = r('el_criteria');
+  const antixa = r('el_antixa');
+  const contBox = r('el_continue');
+
+  const mainColor = '#334155';   // slate-700 for main spine — strong visibility
+  const yesColor = '#dc2626';    // red
+  const noColor = '#16a34a';     // green
+  const purpleColor = '#7c3aed'; // violet-600 for monitoring
+
+  // ══════════════════════════════════════
+  // MAIN VERTICAL SPINE: Title → Admission → Step 1 → D1
+  // ══════════════════════════════════════
+  arrow(CX, title.b, CX, adm.t, mainColor, 2.5);
+  arrow(CX, adm.b, CX, s1.t, mainColor, 2.5);
+  arrow(CX, s1.b, d1.top.x, d1.top.y, mainColor, 2.5);
+
+  // ══════════════════════════════════════
+  // DECISION 1: YES left → Mech, NO right → Step 2
+  // ══════════════════════════════════════
+
+  // YES: diamond left tip → horizontal to mech center X → down to mech top
+  lPath([[d1.left.x, d1.left.y],[mech.cx, d1.left.y],[mech.cx, mech.t]], yesColor, 2.5);
+  pill((d1.left.x + mech.cx)/2, d1.left.y, 'YES', yesColor, '#fef2f2');
+
+  // NO: diamond right tip → horizontal to step2 center X → down to step2 top
+  lPath([[d1.right.x, d1.right.y],[s2.cx, d1.right.y],[s2.cx, s2.t]], noColor, 2.5);
+  pill((d1.right.x + s2.cx)/2, d1.right.y, 'NO', noColor, '#f0fdf4');
+
+  // ══════════════════════════════════════
+  // Step 2 → Diamond 2 (route back to center spine)
+  // ══════════════════════════════════════
+  // Step2 bottom → down short → horizontal left to CX → down into D2 top
+  // Route: Step2 bottom → short drop → horizontal to center → down into diamond top
+  // The horizontal segment must be above the diamond top tip
+  const s2dropY = d2.top.y - 16; // 16px above diamond top
+  lPath([[s2.cx, s2.b],[s2.cx, s2dropY],[CX, s2dropY],[CX, d2.top.y]], mainColor, 2.5);
+
+  // ══════════════════════════════════════
+  // Diamond 2 → fan out to 7 category cards
+  // ══════════════════════════════════════
+  const cats = [];
+  for(let i=1;i<=7;i++) cats.push(r('el_c'+i));
+
+  // Main bus from diamond bottom
+  const busY = d2.bottom.y + 16;
+  line(d2.bottom.x, d2.bottom.y, d2.bottom.x, busY, mainColor, 2);
+
+  // Horizontal bus spanning top-row cards
+  line(cats[0].cx, busY, cats[3].cx, busY, mainColor, 2);
+  for(let i=0;i<4;i++) arrow(cats[i].cx, busY, cats[i].cx, cats[i].t, mainColor, 1.5);
+
+  // Vertical continuation to second bus
+  const bus2Y = cats[0].b + 12;
+  line(CX, busY, CX, bus2Y, mainColor, 2);
+  // Secondary bus for bottom row
+  line(cats[4].cx, bus2Y, cats[6].cx, bus2Y, mainColor, 2);
+  for(let i=4;i<7;i++) arrow(cats[i].cx, bus2Y, cats[i].cx, cats[i].t, mainColor, 1.5);
+
+  // ══════════════════════════════════════
+  // ALL categories → merge → Step 3
+  // ══════════════════════════════════════
+  const mergeY = cats[6].b + 16;
+  // Lines down from all cards to merge line
+  for(let i=0;i<4;i++) line(cats[i].cx, cats[i].b, cats[i].cx, mergeY, mainColor, 1.5);
+  for(let i=4;i<7;i++) line(cats[i].cx, cats[i].b, cats[i].cx, mergeY, mainColor, 1.5);
+
+  // Horizontal merge bar
+  const mergeLeft = Math.min(cats[0].cx, cats[4].cx);
+  const mergeRight = Math.max(cats[3].cx, cats[6].cx);
+  line(mergeLeft, mergeY, mergeRight, mergeY, mainColor, 2);
+
+  // Merge center → Step 3
+  arrow(CX, mergeY, CX, s3.t, mainColor, 2.5);
+
+  // ══════════════════════════════════════
+  // Step 3 → Dose Table → Diamond 3
+  // ══════════════════════════════════════
+  // Thin connector through dose table area
+  line(CX, s3.b, CX, doseT.t - 2, mainColor, 2);
+  arrow(CX, doseT.b + 2, d3.top.x, d3.top.y, mainColor, 2.5);
+
+  // ══════════════════════════════════════
+  // Diamond 3: YES left → Criteria → Anti-Xa, NO right → Continue
+  // ══════════════════════════════════════
+
+  // YES
+  lPath([[d3.left.x, d3.left.y],[criteria.cx, d3.left.y],[criteria.cx, criteria.t]], purpleColor, 2.5);
+  pill((d3.left.x + criteria.cx)/2, d3.left.y, 'YES', purpleColor, '#faf5ff');
+
+  // Criteria → Anti-Xa
+  arrow(criteria.cx, criteria.b, antixa.cx, antixa.t, purpleColor, 2);
+
+  // NO
+  lPath([[d3.right.x, d3.right.y],[contBox.cx, d3.right.y],[contBox.cx, contBox.t]], noColor, 2.5);
+  pill((d3.right.x + contBox.cx)/2, d3.right.y, 'NO', noColor, '#f0fdf4');
+
+  // ══════════════════════════════════════
+  // Both branches merge → Step 4
+  // ══════════════════════════════════════
+  const merge3Y = Math.max(antixa.b, contBox.b) + 16;
+  line(antixa.cx, antixa.b, antixa.cx, merge3Y, mainColor, 2);
+  line(contBox.cx, contBox.b, contBox.cx, merge3Y, mainColor, 2);
+  line(antixa.cx, merge3Y, contBox.cx, merge3Y, mainColor, 2);
+  arrow(CX, merge3Y, CX, s4.t, mainColor, 2.5);
+});
+</script>
+</body>
+</html>

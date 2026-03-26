@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spinal Cord Injury Algorithm</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; width: 1200px; color: #1e293b; }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+
+  .title-bar { background: linear-gradient(135deg, #0f2b46, #1a4971); color: white; text-align: center; padding: 20px 40px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3); width: 540px; margin: 0 auto; }
+  .title-bar h1 { font-size: 24px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+
+  /* Timeline phase labels */
+  .phase { background: linear-gradient(135deg, #1e3a5f, #2d4a73); color: white; text-align: center; padding: 8px 20px; border-radius: 20px; display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(30,58,95,0.2); }
+
+  /* Step boxes */
+  .step { background: linear-gradient(135deg, #0a6b8a, #0e7c9e); color: white; text-align: center; padding: 12px 22px; border-radius: 10px; display: inline-block; box-shadow: 0 3px 12px rgba(10,107,138,0.25); }
+  .step .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.75; margin-bottom: 2px; }
+  .step .ttl { font-size: 16px; font-weight: 700; }
+  .step .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+
+  .diamond-wrap { display: flex; justify-content: center; }
+  .diamond { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #d97706; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(217,119,6,0.15); }
+  .diamond-inner { transform: rotate(-45deg); text-align: center; padding: 8px; }
+  .diamond-inner .q { font-size: 13px; font-weight: 700; color: #92400e; line-height: 1.3; }
+
+  .action { background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9; color: #0c4a6e; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(14,165,233,0.1); font-size: 12.5px; line-height: 1.5; }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  .warn { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #f87171; border-left: 4px solid #dc2626; color: #991b1b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(220,38,38,0.1); font-size: 12.5px; line-height: 1.5; }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  .icu { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.5; }
+  .icu .it { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  .outcome { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981; color: #064e3b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(16,185,129,0.1); font-size: 12.5px; line-height: 1.5; }
+  .outcome .ot { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  /* Shock type cards */
+  .shock-card { border-radius: 10px; padding: 12px 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); width: 240px; font-size: 12.5px; line-height: 1.5; }
+  .shock-hemorrhagic { background: #fef2f2; border: 2px solid #f87171; border-top: 4px solid #ef4444; color: #991b1b; }
+  .shock-neurogenic { background: #eff6ff; border: 2px solid #93c5fd; border-top: 4px solid #3b82f6; color: #1e3a8a; }
+  .shock-mixed { background: #fff7ed; border: 2px solid #fdba74; border-top: 4px solid #f97316; color: #7c2d12; }
+  .shock-card .st { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+
+  .note { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 8px; padding: 8px 14px; font-size: 11.5px; color: #92400e; text-align: center; display: inline-block; font-style: italic; }
+
+  .sp { height: 22px; }
+  .sp-sm { height: 14px; }
+  .sp-lg { height: 28px; }
+
+  .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1; line-height: 1.6; }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <!-- TITLE -->
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>Spinal Cord Injury Algorithm</h1><p>Acute SCI Management — Level 1 Trauma Center Protocol</p></div></div>
+  <div class="sp"></div>
+
+  <!-- PHASE 1: 0-20 min -->
+  <div class="row flow" id="el_phase1"><div class="phase">Phase 1: 0–20 Minutes</div></div>
+  <div class="sp-sm"></div>
+
+  <div class="row flow" id="el_initial"><div class="step" style="width:400px;"><div class="ttl">SCI Patient — ED Arrival</div><div class="sub">Backboard removal &bull; Spinal precautions &bull; ATLS primary survey</div></div></div>
+  <div class="sp"></div>
+
+  <!-- HYPOTENSIVE? -->
+  <div class="diamond-wrap flow" id="el_hypo"><div class="diamond" style="width:160px;height:160px;"><div class="diamond-inner"><div class="q">Hypotensive?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <!-- SHOCK DIFFERENTIATION -->
+  <div style="display:flex;justify-content:center;gap:20px;" class="flow" id="el_shock_row">
+    <div class="shock-card shock-hemorrhagic" id="el_hemorrhagic">
+      <div class="st">Hemorrhagic Shock</div>
+      Tachycardic + Cool extremities<br>
+      <strong>ATLS, FAST, blood products</strong>
+    </div>
+    <div class="shock-card shock-neurogenic" id="el_neurogenic">
+      <div class="st">Neurogenic Shock</div>
+      Bradycardic + Warm extremities<br>
+      <strong>Norepinephrine preferred</strong><br>
+      Target MAP 85–90 mmHg
+    </div>
+    <div class="shock-card shock-mixed" id="el_mixed">
+      <div class="st">Mixed / Unclear</div>
+      Treat hemorrhagic FIRST<br>
+      <strong>Volume resuscitate → then vasopressors</strong>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- PHASE 2: 0-2 hours -->
+  <div class="row flow" id="el_phase2"><div class="phase">Phase 2: 0–2 Hours</div></div>
+  <div class="sp-sm"></div>
+
+  <div class="row flow" id="el_icu_admit">
+    <div class="icu" style="width:440px;" id="el_icu_box">
+      <div class="it">ICU Admission</div>
+      ASIA exam &bull; Arterial line &bull; Foley catheter<br>
+      <strong>MAP goal 85–90 mmHg × 5–7 days</strong><br>
+      Temperature monitoring (SCI patients are poikilothermic)
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <!-- PHASE 3: 2-6 hours -->
+  <div class="row flow" id="el_phase3"><div class="phase">Phase 3: 2–6 Hours</div></div>
+  <div class="sp-sm"></div>
+
+  <div class="row flow" id="el_mri"><div class="action" style="width:400px;" id="el_mri_box"><div class="at">MRI if indicated &bull; Spine surgery consult</div>Assess for cord compression, ligamentous injury</div></div>
+  <div class="sp"></div>
+
+  <!-- MPSS DECISION -->
+  <div class="diamond-wrap flow" id="el_mpss"><div class="diamond" style="width:180px;height:180px;"><div class="diamond-inner"><div class="q">MPSS Decision<br><span style="font-size:11px;font-weight:500;">Within 8h of injury<br>(Controversial — shared<br>decision with patient)</span></div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:80px;" class="flow" id="el_mpss_row">
+    <div class="warn" style="width:260px;" id="el_mpss_yes">
+      <div class="wt">MPSS Elected</div>
+      30 mg/kg IV bolus<br>
+      then 5.4 mg/kg/hr × 23h<br>
+      <span style="font-size:11px;">Monitor for hyperglycemia, infection</span>
+    </div>
+    <div class="action" style="width:220px;" id="el_mpss_no">
+      <div class="at">MPSS Declined</div>
+      Document decision + rationale<br>
+      Continue standard care
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- PHASE 4: 0-24 hours -->
+  <div class="row flow" id="el_phase4"><div class="phase">Phase 4: 0–24 Hours</div></div>
+  <div class="sp-sm"></div>
+
+  <div class="diamond-wrap flow" id="el_surgery"><div class="diamond" style="width:200px;height:200px;"><div class="diamond-inner"><div class="q">Surgical<br>decompression<br>indicated?</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:80px;" class="flow" id="el_surgery_row">
+    <div class="warn" style="width:240px;" id="el_decompress">
+      <div class="wt">Decompression</div>
+      Target: within 24h of injury<br>
+      Early decompression associated<br>with improved outcomes
+    </div>
+    <div class="outcome" style="width:220px;" id="el_continue_mon">
+      <div class="ot">Continue Monitoring</div>
+      Serial ASIA exams<br>
+      MAP support ongoing
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- PHASE 5: 24-48 hours -->
+  <div class="row flow" id="el_phase5"><div class="phase">Phase 5: 24–48 Hours</div></div>
+  <div class="sp-sm"></div>
+
+  <div class="row flow" id="el_vte_row">
+    <div class="action" style="width:440px;" id="el_vte_box">
+      <div class="at">VTE Prophylaxis</div>
+      Start chemical prophylaxis at 24–48h<br>
+      Per weight-based enoxaparin table (see VTE Decision Tree)
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <!-- PHASE 6: 3-7 days -->
+  <div class="row flow" id="el_phase6"><div class="phase">Phase 6: 3–7 Days</div></div>
+  <div class="sp-sm"></div>
+
+  <div style="display:flex;justify-content:center;gap:30px;" class="flow" id="el_ongoing_row">
+    <div class="icu" style="width:280px;" id="el_map_wean">
+      <div class="it">Ongoing ICU Management</div>
+      Continue MAP support 85–90<br>
+      Wean vasopressors as tolerated<br>
+      Bowel/bladder protocol<br>
+      Temperature regulation
+    </div>
+    <div class="action" style="width:280px;" id="el_resp_mon">
+      <div class="at">Respiratory Monitoring</div>
+      FVC and NIF q4–6h if cervical SCI<br>
+      <strong>Intubate if:</strong><br>
+      FVC &lt; 15 mL/kg OR NIF weaker than −20
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on AO Spine 2024 Guidelines, STASCIS Trial, and ACS-TQIP Best Practices &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart = document.getElementById('chart');
+  const svg = document.getElementById('connectors');
+  const W = chart.scrollWidth, H = chart.scrollHeight;
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.width = W + 'px'; svg.style.height = H + 'px';
+
+  const CR = chart.getBoundingClientRect();
+  const CX = W / 2;
+  const mainColor = '#334155';
+
+  function r(id) { const el=document.getElementById(id); if(!el)return null; const b=el.getBoundingClientRect(); return {t:b.top-CR.top,b:b.bottom-CR.top,l:b.left-CR.left,r:b.right-CR.left,cx:(b.left+b.right)/2-CR.left,cy:(b.top+b.bottom)/2-CR.top,w:b.width,h:b.height}; }
+  function line(x1,y1,x2,y2,c=mainColor,w=2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  function arrowHead(x,y,a,c=mainColor,s=8){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${x},${y} ${x-s*Math.cos(a-Math.PI/6)},${y-s*Math.sin(a-Math.PI/6)} ${x-s*Math.cos(a+Math.PI/6)},${y-s*Math.sin(a+Math.PI/6)}`);p.setAttribute('fill',c);svg.appendChild(p);}
+  function arrow(x1,y1,x2,y2,c=mainColor,w=2){line(x1,y1,x2,y2,c,w);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),c);}
+  function lPath(pts,c=mainColor,w=2,arr=true){for(let i=0;i<pts.length-1;i++)line(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],c,w);if(arr&&pts.length>=2){const[px,py]=pts[pts.length-2],[ex,ey]=pts[pts.length-1];arrowHead(ex,ey,Math.atan2(ey-py,ex-px),c);}}
+  function pill(x,y,t,c,bg){const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');const pw=t.length*9+18;fo.setAttribute('x',x-pw/2);fo.setAttribute('y',y-12);fo.setAttribute('width',pw);fo.setAttribute('height',24);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;font-size:12px;font-weight:800;color:${c};background:${bg};border:2px solid ${c};border-radius:12px;text-align:center;line-height:20px;width:${pw}px;height:24px;">${t}</div>`;svg.appendChild(fo);}
+  function dPts(id){const o=document.getElementById(id);const d=o.querySelector('.diamond');if(!d)return null;const b=d.getBoundingClientRect();const cx=(b.left+b.right)/2-CR.left,cy=(b.top+b.bottom)/2-CR.top;return{top:{x:cx,y:b.top-CR.top},bottom:{x:cx,y:b.bottom-CR.top},left:{x:b.left-CR.left,y:cy},right:{x:b.right-CR.left,y:cy}};}
+
+  const title=r('el_title'), initial=r('el_initial');
+  const hypo=dPts('el_hypo');
+  const hemorrhagic=r('el_hemorrhagic'), neurogenic=r('el_neurogenic'), mixed=r('el_mixed');
+  const icuBox=r('el_icu_box'), mriBox=r('el_mri_box');
+  const mpss=dPts('el_mpss');
+  const mpssYes=r('el_mpss_yes'), mpssNo=r('el_mpss_no');
+  const surgery=dPts('el_surgery');
+  const decompress=r('el_decompress'), continueMon=r('el_continue_mon');
+  const vteBox=r('el_vte_box');
+  const mapWean=r('el_map_wean'), respMon=r('el_resp_mon');
+
+  // Main spine connectors
+  arrow(CX, title.b, CX, initial.t, mainColor, 2.5);
+  arrow(CX, initial.b, hypo.top.x, hypo.top.y, mainColor, 2.5);
+
+  // Hypo YES → shock row (fan out)
+  const shockBusY = hypo.bottom.y + 14;
+  line(hypo.bottom.x, hypo.bottom.y, hypo.bottom.x, shockBusY);
+  line(hemorrhagic.cx, shockBusY, mixed.cx, shockBusY);
+  arrow(hemorrhagic.cx, shockBusY, hemorrhagic.cx, hemorrhagic.t);
+  arrow(neurogenic.cx, shockBusY, neurogenic.cx, neurogenic.t);
+  arrow(mixed.cx, shockBusY, mixed.cx, mixed.t);
+  pill(hypo.bottom.x, hypo.bottom.y + 6, 'YES', '#dc2626', '#fef2f2');
+
+  // Hypo NO → skip to ICU (route right then down)
+  const noRouteX = mixed.r + 40;
+  lPath([[hypo.right.x, hypo.right.y],[noRouteX, hypo.right.y],[noRouteX, icuBox.cy],[icuBox.r + 4, icuBox.cy]], '#16a34a', 2);
+  pill(hypo.right.x + 30, hypo.right.y, 'NO', '#16a34a', '#f0fdf4');
+
+  // Shock cards → merge → ICU
+  const shockMergeY = hemorrhagic.b + 14;
+  line(hemorrhagic.cx, hemorrhagic.b, hemorrhagic.cx, shockMergeY);
+  line(neurogenic.cx, neurogenic.b, neurogenic.cx, shockMergeY);
+  line(mixed.cx, mixed.b, mixed.cx, shockMergeY);
+  line(hemorrhagic.cx, shockMergeY, mixed.cx, shockMergeY);
+  arrow(CX, shockMergeY, CX, icuBox.t, mainColor, 2.5);
+
+  // ICU → MRI
+  arrow(CX, icuBox.b, CX, mriBox.t, mainColor, 2);
+
+  // MRI → MPSS diamond
+  arrow(CX, mriBox.b, mpss.top.x, mpss.top.y, mainColor, 2);
+
+  // MPSS → Elected (left), Declined (right)
+  lPath([[mpss.left.x, mpss.left.y],[mpssYes.cx, mpss.left.y],[mpssYes.cx, mpssYes.t]], '#dc2626', 2);
+  pill((mpss.left.x+mpssYes.cx)/2, mpss.left.y, 'ELECTED', '#dc2626', '#fef2f2');
+  lPath([[mpss.right.x, mpss.right.y],[mpssNo.cx, mpss.right.y],[mpssNo.cx, mpssNo.t]], '#16a34a', 2);
+  pill((mpss.right.x+mpssNo.cx)/2, mpss.right.y, 'DECLINED', '#16a34a', '#f0fdf4');
+
+  // Both MPSS paths → merge → Surgery diamond
+  const mpssMergeY = Math.max(mpssYes.b, mpssNo.b) + 14;
+  line(mpssYes.cx, mpssYes.b, mpssYes.cx, mpssMergeY);
+  line(mpssNo.cx, mpssNo.b, mpssNo.cx, mpssMergeY);
+  line(mpssYes.cx, mpssMergeY, mpssNo.cx, mpssMergeY);
+  arrow(CX, mpssMergeY, surgery.top.x, surgery.top.y, mainColor, 2.5);
+
+  // Surgery → Yes (left), No (right)
+  lPath([[surgery.left.x, surgery.left.y],[decompress.cx, surgery.left.y],[decompress.cx, decompress.t]], '#dc2626', 2.5);
+  pill((surgery.left.x+decompress.cx)/2, surgery.left.y, 'YES', '#dc2626', '#fef2f2');
+  lPath([[surgery.right.x, surgery.right.y],[continueMon.cx, surgery.right.y],[continueMon.cx, continueMon.t]], '#16a34a', 2.5);
+  pill((surgery.right.x+continueMon.cx)/2, surgery.right.y, 'NO', '#16a34a', '#f0fdf4');
+
+  // Both → merge → VTE
+  const surgMergeY = Math.max(decompress.b, continueMon.b) + 14;
+  line(decompress.cx, decompress.b, decompress.cx, surgMergeY);
+  line(continueMon.cx, continueMon.b, continueMon.cx, surgMergeY);
+  line(decompress.cx, surgMergeY, continueMon.cx, surgMergeY);
+  arrow(CX, surgMergeY, CX, vteBox.t, mainColor, 2.5);
+
+  // VTE → ongoing
+  const ongoingBusY = vteBox.b + 30;
+  line(CX, vteBox.b, CX, ongoingBusY);
+  line(mapWean.cx, ongoingBusY, respMon.cx, ongoingBusY);
+  arrow(mapWean.cx, ongoingBusY, mapWean.cx, mapWean.t);
+  arrow(respMon.cx, ongoingBusY, respMon.cx, respMon.t);
+});
+</script>
+</body>
+</html>

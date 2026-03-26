@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BIG Classification — TBI Management</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #fff;
+    width: 1200px;
+    color: #1e293b;
+  }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+  .col { display: flex; flex-direction: column; align-items: center; }
+
+  /* Title */
+  .title-bar {
+    background: linear-gradient(135deg, #0f2b46, #1a4971);
+    color: white; text-align: center; padding: 20px 40px;
+    border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3);
+    width: 560px; margin: 0 auto;
+  }
+  .title-bar h1 { font-size: 24px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+
+  /* Entry box */
+  .entry {
+    background: linear-gradient(135deg, #0a6b8a, #0e7c9e);
+    color: white; text-align: center; padding: 12px 24px;
+    border-radius: 10px; display: inline-block;
+    box-shadow: 0 3px 12px rgba(10,107,138,0.25);
+  }
+  .entry .ttl { font-size: 16px; font-weight: 700; }
+  .entry .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+
+  /* BIG category headers */
+  .big1-hdr { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #4ade80; border-top: 4px solid #22c55e; }
+  .big2-hdr { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #fbbf24; border-top: 4px solid #f59e0b; }
+  .big3-hdr { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #f87171; border-top: 4px solid #ef4444; }
+
+  .big-cat {
+    border-radius: 10px; padding: 14px 16px; text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); width: 300px;
+  }
+  .big-cat .bt { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .big-cat .bc { font-size: 13px; font-weight: 600; line-height: 1.5; }
+  .big1-hdr .bt { color: #14532d; } .big1-hdr .bc { color: #166534; }
+  .big2-hdr .bt { color: #78350f; } .big2-hdr .bc { color: #92400e; }
+  .big3-hdr .bt { color: #7f1d1d; } .big3-hdr .bc { color: #991b1b; }
+
+  /* Action boxes */
+  .action {
+    background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9;
+    color: #0c4a6e; padding: 10px 14px; border-radius: 8px;
+    text-align: center; display: inline-block;
+    box-shadow: 0 2px 6px rgba(14,165,233,0.1);
+    font-size: 13px; line-height: 1.5;
+  }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  /* Decision diamond */
+  .diamond-wrap { display: flex; justify-content: center; }
+  .diamond {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 2px solid #d97706;
+    transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(217,119,6,0.15);
+  }
+  .diamond-inner { transform: rotate(-45deg); text-align: center; padding: 8px; }
+  .diamond-inner .q { font-size: 13px; font-weight: 700; color: #92400e; line-height: 1.3; }
+
+  /* Warning/alert box */
+  .warn {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border: 1.5px solid #f87171; border-left: 4px solid #dc2626;
+    color: #991b1b; padding: 10px 14px; border-radius: 8px;
+    text-align: center; display: inline-block;
+    box-shadow: 0 2px 6px rgba(220,38,38,0.1);
+    font-size: 13px; line-height: 1.5;
+  }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  /* ICU box */
+  .icu {
+    background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+    border: 1.5px solid #c084fc; border-left: 4px solid #9333ea;
+    color: #581c87; padding: 10px 14px; border-radius: 8px;
+    text-align: center; display: inline-block;
+    box-shadow: 0 2px 6px rgba(147,51,234,0.1);
+    font-size: 13px; line-height: 1.5;
+  }
+  .icu .it { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  /* Outcome / endpoint */
+  .outcome {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981;
+    color: #064e3b; padding: 10px 14px; border-radius: 8px;
+    text-align: center; display: inline-block;
+    box-shadow: 0 2px 6px rgba(16,185,129,0.1);
+    font-size: 13px; line-height: 1.5;
+  }
+  .outcome .ot { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+
+  /* Reversal protocol box */
+  .reversal {
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
+    border: 1.5px solid #fdba74; border-left: 4px solid #f97316;
+    color: #7c2d12; padding: 10px 14px; border-radius: 8px;
+    text-align: left; display: inline-block;
+    box-shadow: 0 2px 6px rgba(249,115,22,0.1);
+    font-size: 12.5px; line-height: 1.5;
+  }
+  .reversal .rt { font-size: 14px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+  .reversal ul { list-style: none; padding-left: 0; }
+  .reversal ul li::before { content: "•"; color: #f97316; font-weight: bold; margin-right: 6px; }
+
+  .sp { height: 24px; }
+  .sp-sm { height: 16px; }
+  .sp-lg { height: 32px; }
+
+  .footer {
+    text-align: center; font-size: 12px; color: #64748b;
+    margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1;
+    line-height: 1.6;
+  }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <!-- TITLE -->
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>BIG Classification — TBI Management</h1><p>Brain Injury Guidelines for Head Injury Patients &bull; Age ≥ 15 &bull; CT Completed</p></div></div>
+  <div class="sp"></div>
+
+  <!-- ENTRY -->
+  <div class="row flow" id="el_entry"><div class="entry"><div class="ttl">Head Injury Patient — Classify per BIG Criteria</div><div class="sub">Based on GCS, bleed size, and anticoagulation status</div></div></div>
+  <div class="sp-lg"></div>
+
+  <!-- THREE BIG CATEGORIES -->
+  <div style="display:flex;justify-content:center;gap:30px;" class="flow" id="el_cats">
+    <div class="col" style="align-items:center;gap:14px;" id="el_big1col">
+      <div class="big-cat big1-hdr" id="el_big1">
+        <div class="bt">BIG 1</div>
+        <div class="bc">GCS 15<br>Small bleeds<br>No anticoagulation</div>
+      </div>
+      <div class="action" style="width:280px;" id="el_big1_obs">
+        <div class="at">ED Observation</div>
+        6 hours, neuro checks q2h<br>
+        Repeat CT at 6h if on antiplatelets
+      </div>
+    </div>
+    <div class="col" style="align-items:center;gap:14px;" id="el_big2col">
+      <div class="big-cat big2-hdr" id="el_big2">
+        <div class="bt">BIG 2</div>
+        <div class="bc">GCS 13–15<br>Moderate bleeds<br>No anticoagulation</div>
+      </div>
+      <div class="diamond-wrap" id="el_icu_trig">
+        <div class="diamond" style="width:190px;height:190px;">
+          <div class="diamond-inner">
+            <div class="q">ICU Triggers?<br>Age ≥ 65, SDH ≥ 6mm,<br>antiplatelet use,<br>multiple bleeds,<br>coagulopathy,<br>intoxication</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col" style="align-items:center;gap:14px;" id="el_big3col">
+      <div class="big-cat big3-hdr" id="el_big3">
+        <div class="bt">BIG 3</div>
+        <div class="bc">GCS ≤ 12<br>Large bleeds<br>OR anticoagulated</div>
+      </div>
+      <div class="icu" style="width:280px;" id="el_big3_icu">
+        <div class="it">ICU Admission</div>
+        Neurosurgery consult within 30 min<br>
+        Neuro checks q1h<br>
+        Seizure prophylaxis: Levetiracetam 1g IV q12h × 7 days
+      </div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- BIG 2 DISPOSITION ROW -->
+  <div style="display:flex;justify-content:center;gap:80px;" class="flow" id="el_b2_disp">
+    <div class="icu" style="width:220px;" id="el_b2_icu">
+      <div class="it">ICU Admission</div>
+      Neuro checks q2h<br>
+      Consider seizure prophylaxis
+    </div>
+    <div class="action" style="width:220px;" id="el_b2_floor">
+      <div class="at">Floor Admission</div>
+      Neuro checks q2h
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- ANTICOAGULATION CHECK (BIG 3) + BIG 1 OUTCOME + BIG 2 OUTCOMES -->
+  <div style="display:flex;justify-content:center;gap:40px;align-items:flex-start;" class="flow" id="el_outcomes_row">
+    <!-- BIG 1: discharge decision -->
+    <div class="col" style="gap:12px;width:260px;align-items:center;" id="el_b1_out">
+      <div class="diamond-wrap" id="el_gcs_check">
+        <div class="diamond" style="width:150px;height:150px;">
+          <div class="diamond-inner"><div class="q">GCS 15?<br>No worsening?</div></div>
+        </div>
+      </div>
+      <div class="outcome" style="width:240px;" id="el_discharge">
+        <div class="ot">Discharge</div>
+        Head injury precautions<br>
+        Return if: headache worsens, vomiting,<br>confusion, weakness, seizure
+      </div>
+    </div>
+
+    <!-- BIG 2: reclassify if worsening -->
+    <div class="col" style="gap:12px;width:220px;align-items:center;" id="el_b2_out">
+      <div class="warn" style="width:200px;" id="el_reclassify">
+        <div class="wt">Worsening?</div>
+        Reclassify &amp; repeat CT<br>
+        Escalate to BIG 3 if needed
+      </div>
+    </div>
+
+    <!-- BIG 3: anticoag check -->
+    <div class="col" style="gap:12px;width:320px;align-items:center;" id="el_b3_out">
+      <div class="diamond-wrap" id="el_anticoag_check">
+        <div class="diamond" style="width:150px;height:150px;">
+          <div class="diamond-inner"><div class="q">Anticoag-<br>ulated?</div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;">
+        <div class="reversal" style="width:240px;" id="el_reversal">
+          <div class="rt">Reversal Protocol</div>
+          <ul>
+            <li>Factor Xa inhibitors → 4F-PCC</li>
+            <li>Dabigatran → Idarucizumab</li>
+            <li>Warfarin → PCC + Vitamin K</li>
+          </ul>
+          <div style="margin-top:6px;text-align:center;font-weight:700;color:#dc2626;font-size:11.5px;">
+            ⚠ PCC thrombosis risk ~3.8%<br>Monitor for VTE/PE/MI
+          </div>
+        </div>
+        <div class="action" style="width:160px;margin-top:10px;" id="el_standard_icu">
+          <div class="at">Standard ICU</div>
+          Management per<br>TBI protocol
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- REPEAT CT -->
+  <div class="row flow" id="el_repeat_ct_row">
+    <div class="action" style="width:320px;" id="el_repeat_ct">
+      <div class="at">Repeat CT</div>
+      At 6–24h or with any neurological decline
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <!-- BIG 3 STEP-DOWN ROW -->
+  <div class="row flow" id="el_stepdown_row">
+    <div style="display:flex;justify-content:center;gap:30px;align-items:center;">
+      <div class="warn" style="width:180px;" id="el_continue_icu">
+        <div class="wt">Continue ICU</div>
+        Reassess daily
+      </div>
+      <div class="diamond-wrap" id="el_stepdown_check">
+        <div class="diamond" style="width:180px;height:180px;">
+          <div class="diamond-inner">
+            <div class="q">Step-Down<br>Criteria Met?<br><span style="font-size:11px;font-weight:500;">GCS ≥ 13 × 24h<br>Stable CT<br>No NSC intervention<br>NSC agrees</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="outcome" style="width:200px;" id="el_transfer_floor">
+        <div class="ot">Transfer to Floor</div>
+        Neuro checks q2h
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on BIG Classification (Joseph et al.) and ACS-TQIP TBI Guidelines &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart = document.getElementById('chart');
+  const svg = document.getElementById('connectors');
+  const W = chart.scrollWidth;
+  const H = chart.scrollHeight;
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.width = W + 'px';
+  svg.style.height = H + 'px';
+
+  const CR = chart.getBoundingClientRect();
+  function r(id) {
+    const el = document.getElementById(id);
+    if (!el) return null;
+    const b = el.getBoundingClientRect();
+    return {
+      t: b.top - CR.top, b: b.bottom - CR.top,
+      l: b.left - CR.left, r: b.right - CR.left,
+      cx: (b.left + b.right) / 2 - CR.left,
+      cy: (b.top + b.bottom) / 2 - CR.top,
+      w: b.width, h: b.height
+    };
+  }
+
+  const mainColor = '#334155';
+  function line(x1,y1,x2,y2,color=mainColor,w=2) {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+    l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke',color); l.setAttribute('stroke-width',w);
+    l.setAttribute('stroke-linecap','round');
+    svg.appendChild(l);
+  }
+  function arrowHead(x,y,angle,color=mainColor,size=8) {
+    const p = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    const a1x = x - size*Math.cos(angle-Math.PI/6), a1y = y - size*Math.sin(angle-Math.PI/6);
+    const a2x = x - size*Math.cos(angle+Math.PI/6), a2y = y - size*Math.sin(angle+Math.PI/6);
+    p.setAttribute('points',`${x},${y} ${a1x},${a1y} ${a2x},${a2y}`);
+    p.setAttribute('fill',color);
+    svg.appendChild(p);
+  }
+  function arrow(x1,y1,x2,y2,color=mainColor,w=2) {
+    line(x1,y1,x2,y2,color,w);
+    arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),color);
+  }
+  function lPath(pts,color=mainColor,w=2,addArrow=true) {
+    for(let i=0;i<pts.length-1;i++) line(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],color,w);
+    if(addArrow && pts.length>=2) {
+      const [px,py]=pts[pts.length-2],[ex,ey]=pts[pts.length-1];
+      arrowHead(ex,ey,Math.atan2(ey-py,ex-px),color);
+    }
+  }
+  function pill(x,y,text,color,bg) {
+    const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+    const pw = text.length * 9 + 18;
+    fo.setAttribute('x',x-pw/2); fo.setAttribute('y',y-12);
+    fo.setAttribute('width',pw); fo.setAttribute('height',24);
+    fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;font-size:12px;font-weight:800;color:${color};background:${bg};border:2px solid ${color};border-radius:12px;text-align:center;line-height:20px;width:${pw}px;height:24px;">${text}</div>`;
+    svg.appendChild(fo);
+  }
+  function dPts(id) {
+    const outer = document.getElementById(id);
+    const d = outer.querySelector('.diamond');
+    if (!d) return null;
+    const b = d.getBoundingClientRect();
+    const cx = (b.left+b.right)/2-CR.left, cy = (b.top+b.bottom)/2-CR.top;
+    return { top:{x:cx,y:b.top-CR.top}, bottom:{x:cx,y:b.bottom-CR.top}, left:{x:b.left-CR.left,y:cy}, right:{x:b.right-CR.left,y:cy} };
+  }
+
+  // REFERENCES
+  const CX = W / 2;
+  const title = r('el_title');
+  const entry = r('el_entry');
+  const big1 = r('el_big1');
+  const big2 = r('el_big2');
+  const big3 = r('el_big3');
+  const b1obs = r('el_big1_obs');
+  const b3icu = r('el_big3_icu');
+  const icuTrig = dPts('el_icu_trig');
+  const b2icu = r('el_b2_icu');
+  const b2floor = r('el_b2_floor');
+  const gcsCheck = dPts('el_gcs_check');
+  const discharge = r('el_discharge');
+  const reclassify = r('el_reclassify');
+  const anticoagCheck = dPts('el_anticoag_check');
+  const reversal = r('el_reversal');
+  const standardIcu = r('el_standard_icu');
+  const repeatCt = r('el_repeat_ct');
+  const stepdownCheck = dPts('el_stepdown_check');
+  const transferFloor = r('el_transfer_floor');
+  const continueIcu = r('el_continue_icu');
+
+  // Title → Entry
+  arrow(CX, title.b, CX, entry.t, mainColor, 2.5);
+
+  // Entry → fan to 3 BIG categories
+  const fanY = entry.b + 12;
+  line(CX, entry.b, CX, fanY);
+  line(big1.cx, fanY, big3.cx, fanY);
+  arrow(big1.cx, fanY, big1.cx, big1.t);
+  arrow(big2.cx, fanY, big2.cx, big2.t);
+  arrow(big3.cx, fanY, big3.cx, big3.t);
+
+  // BIG 1 → Obs
+  arrow(big1.cx, big1.b, b1obs.cx, b1obs.t);
+
+  // BIG 2 → ICU Triggers diamond
+  arrow(big2.cx, big2.b, icuTrig.top.x, icuTrig.top.y);
+
+  // BIG 3 → ICU
+  arrow(big3.cx, big3.b, b3icu.cx, b3icu.t);
+
+  // ICU Triggers → left = Any trigger → ICU, right = None → Floor
+  lPath([[icuTrig.left.x, icuTrig.left.y],[b2icu.cx, icuTrig.left.y],[b2icu.cx, b2icu.t]], '#9333ea', 2.5);
+  pill((icuTrig.left.x + b2icu.cx)/2, icuTrig.left.y, 'ANY', '#9333ea', '#faf5ff');
+
+  lPath([[icuTrig.right.x, icuTrig.right.y],[b2floor.cx, icuTrig.right.y],[b2floor.cx, b2floor.t]], '#16a34a', 2.5);
+  pill((icuTrig.right.x + b2floor.cx)/2, icuTrig.right.y, 'NONE', '#16a34a', '#f0fdf4');
+
+  // BIG 1 Obs → GCS check
+  arrow(b1obs.cx, b1obs.b, gcsCheck.top.x, gcsCheck.top.y);
+
+  // GCS check → Discharge (Yes)
+  lPath([[gcsCheck.bottom.x, gcsCheck.bottom.y],[discharge.cx, gcsCheck.bottom.y + 10],[discharge.cx, discharge.t]], '#16a34a', 2);
+  pill(gcsCheck.bottom.x, gcsCheck.bottom.y + 10, 'YES', '#16a34a', '#f0fdf4');
+
+  // GCS check → No → Reclassify (route right)
+  lPath([[gcsCheck.right.x, gcsCheck.right.y],[reclassify.cx, gcsCheck.right.y],[reclassify.cx, reclassify.t]], '#dc2626', 2);
+  pill((gcsCheck.right.x + reclassify.cx)/2, gcsCheck.right.y, 'NO', '#dc2626', '#fef2f2');
+
+  // BIG 3 ICU → Anticoag check
+  arrow(b3icu.cx, b3icu.b, anticoagCheck.top.x, anticoagCheck.top.y);
+
+  // Anticoag → Yes = Reversal, No = Standard
+  if (anticoagCheck && reversal && standardIcu) {
+    lPath([[anticoagCheck.left.x, anticoagCheck.left.y],[reversal.cx, anticoagCheck.left.y],[reversal.cx, reversal.t]], '#f97316', 2.5);
+    pill((anticoagCheck.left.x + reversal.cx)/2, anticoagCheck.left.y, 'YES', '#f97316', '#fff7ed');
+
+    lPath([[anticoagCheck.right.x, anticoagCheck.right.y],[standardIcu.cx, anticoagCheck.right.y],[standardIcu.cx, standardIcu.t]], '#16a34a', 2.5);
+    pill((anticoagCheck.right.x + standardIcu.cx)/2, anticoagCheck.right.y, 'NO', '#16a34a', '#f0fdf4');
+  }
+
+  // BIG 2 dispositions → Worsening box (dashed lines showing escalation path)
+  if (b2icu && b2floor && reclassify) {
+    // Both BIG 2 paths can worsen → reclassify
+    const warnMidY = reclassify.t - 10;
+    line(b2icu.cx, b2icu.b, b2icu.cx, warnMidY, '#dc2626', 1.5, true);
+    line(b2icu.cx, warnMidY, reclassify.cx, warnMidY, '#dc2626', 1.5, true);
+    arrow(reclassify.cx, warnMidY, reclassify.cx, reclassify.t, '#dc2626', 1.5);
+  }
+
+  // Repeat CT + Step-down check connectors
+  if (repeatCt && stepdownCheck) {
+    // Step-down → Right = Yes → Floor
+    if (transferFloor && continueIcu) {
+      lPath([[stepdownCheck.right.x, stepdownCheck.right.y],[transferFloor.cx, stepdownCheck.right.y],[transferFloor.cx, transferFloor.t]], '#16a34a', 2);
+      pill((stepdownCheck.right.x + transferFloor.cx)/2, stepdownCheck.right.y, 'YES', '#16a34a', '#f0fdf4');
+
+      // Step-down → Left = No → Continue ICU (route left then down)
+      lPath([[stepdownCheck.left.x, stepdownCheck.left.y],[continueIcu.cx, stepdownCheck.left.y],[continueIcu.cx, continueIcu.t]], '#dc2626', 2);
+      pill((stepdownCheck.left.x + continueIcu.cx)/2, stepdownCheck.left.y, 'NO', '#dc2626', '#fef2f2');
+    }
+  }
+});
+</script>
+</body>
+</html>

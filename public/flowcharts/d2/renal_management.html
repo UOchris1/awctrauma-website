@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Renal Injury Management</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; width: 1200px; color: #1e293b; }
+  .chart { position: relative; padding: 32px 30px 32px; }
+  .flow { position: relative; z-index: 2; }
+  #connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
+  .row { display: flex; justify-content: center; }
+  .title-bar { background: linear-gradient(135deg, #0f2b46, #1a4971); color: white; text-align: center; padding: 20px 40px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15,43,70,0.3); width: 560px; margin: 0 auto; }
+  .title-bar h1 { font-size: 24px; font-weight: 800; }
+  .title-bar p { font-size: 13px; opacity: 0.75; margin-top: 3px; }
+  .step { background: linear-gradient(135deg, #0a6b8a, #0e7c9e); color: white; text-align: center; padding: 12px 22px; border-radius: 10px; display: inline-block; box-shadow: 0 3px 12px rgba(10,107,138,0.25); }
+  .step .ttl { font-size: 16px; font-weight: 700; }
+  .step .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .diamond-wrap { display: flex; justify-content: center; }
+  .diamond { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #d97706; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(217,119,6,0.15); }
+  .diamond-inner { transform: rotate(-45deg); text-align: center; padding: 8px; }
+  .diamond-inner .q { font-size: 13px; font-weight: 700; color: #92400e; line-height: 1.3; }
+  .diamond-inner .qs { font-size: 11px; font-weight: 500; color: #a16207; font-style: italic; }
+  .action { background: #f0f9ff; border: 1.5px solid #7dd3fc; border-left: 4px solid #0ea5e9; color: #0c4a6e; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(14,165,233,0.1); font-size: 12.5px; line-height: 1.5; }
+  .action .at { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .warn { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #f87171; border-left: 4px solid #dc2626; color: #991b1b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(220,38,38,0.1); font-size: 12.5px; line-height: 1.5; }
+  .warn .wt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .icu { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 1.5px solid #c084fc; border-left: 4px solid #9333ea; color: #581c87; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(147,51,234,0.1); font-size: 12.5px; line-height: 1.5; }
+  .icu .it { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .outcome { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-left: 4px solid #10b981; color: #064e3b; padding: 10px 14px; border-radius: 8px; text-align: center; display: inline-block; box-shadow: 0 2px 6px rgba(16,185,129,0.1); font-size: 12.5px; line-height: 1.5; }
+  .outcome .ot { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .grade-card { border-radius: 10px; padding: 12px 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-size: 12px; line-height: 1.5; }
+  .grade-low { background: #ecfdf5; border: 2px solid #6ee7b7; border-top: 4px solid #10b981; color: #064e3b; }
+  .grade-high { background: #fff7ed; border: 2px solid #fdba74; border-top: 4px solid #f97316; color: #7c2d12; }
+  .grade-card .gt { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+  .sp { height: 22px; } .sp-sm { height: 14px; } .sp-lg { height: 28px; }
+  .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 14px; padding-top: 10px; border-top: 1.5px solid #cbd5e1; line-height: 1.6; }
+  .footer .version { font-size: 10.5px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="chart" id="chart">
+  <svg id="connectors"></svg>
+
+  <div class="row flow" id="el_title"><div class="title-bar"><h1>Renal Injury Management</h1><p>Blunt Renal Trauma &bull; AAST 2018 Revised Grading &bull; NOM Pathway</p></div></div>
+  <div class="sp"></div>
+
+  <div class="row flow" id="el_entry"><div class="step" style="width:480px;"><div class="ttl">Renal Injury Identified on CT</div><div class="sub">ATLS &bull; CT abdomen/pelvis with IV contrast + delayed images (10 min) for collecting system</div></div></div>
+  <div class="sp"></div>
+
+  <div class="diamond-wrap flow" id="el_hemo"><div class="diamond" style="width:200px;height:200px;"><div class="diamond-inner"><div class="q">Hemodynamically<br>stable?</div><div class="qs">After initial<br>resuscitation</div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:60px;align-items:flex-start;" class="flow" id="el_hemo_row">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:300px;" id="el_unstable_col">
+      <div class="warn" style="width:280px;" id="el_unstable">
+        <div class="wt">Hemodynamically Unstable</div>
+        Expanding/pulsatile hematoma<br>
+        <strong>Operative Exploration</strong>
+      </div>
+      <div class="action" style="width:260px;" id="el_or_options">
+        <div class="at">Operative Options</div>
+        Renorrhaphy (partial repair)<br>
+        Nephrectomy (if non-reconstructable)<br>
+        <strong>Confirm contralateral kidney function</strong>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:520px;" id="el_stable_col">
+      <div class="outcome" style="width:300px;" id="el_stable">
+        <div class="ot">Hemodynamically Stable</div>
+        NOM — even Grade IV if stable
+      </div>
+      <div style="display:flex;gap:16px;">
+        <div class="grade-card grade-low" style="width:240px;" id="el_low_grade">
+          <div class="gt">Grade I–III</div>
+          <strong>Floor admission</strong><br>
+          Serial H/H q6h × 24h<br>
+          Bed rest until hematuria clears<br>
+          Activity restriction 4–6 weeks
+        </div>
+        <div class="grade-card grade-high" style="width:240px;" id="el_high_grade">
+          <div class="gt">Grade IV–V</div>
+          <strong>ICU admission</strong><br>
+          Serial H/H q4h × 48h<br>
+          Type &amp; screen<br>
+          Urology consult
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <div class="diamond-wrap flow" id="el_extrav"><div class="diamond" style="width:200px;height:200px;"><div class="diamond-inner"><div class="q">Active arterial<br>extravasation?<br><span style="font-size:11px;font-weight:500;">Contained vs.<br>non-contained</span></div></div></div></div>
+  <div class="sp-lg"></div>
+
+  <div style="display:flex;justify-content:center;gap:80px;" class="flow" id="el_extrav_row">
+    <div class="warn" style="width:260px;" id="el_embolize">
+      <div class="wt">Angioembolization</div>
+      IR consult emergently<br>
+      Selective renal artery embolization<br>
+      Post-embolization repeat CT at 48–72h
+    </div>
+    <div class="action" style="width:240px;" id="el_observe">
+      <div class="at">Continue NOM</div>
+      Contained vascular injury: observe<br>
+      Repeat CT at 48–72h for Grade III+<br>
+      Serial H/H, hematuria monitoring
+    </div>
+  </div>
+  <div class="sp-lg"></div>
+
+  <!-- URINOMA / COLLECTING SYSTEM -->
+  <div class="row flow" id="el_urinoma_row">
+    <div class="icu" style="width:540px;" id="el_urinoma">
+      <div class="it">Collecting System Injury / Urinoma (Grade IV)</div>
+      Delayed CT images show contrast extravasation from collecting system<br>
+      Small contained → observe with serial imaging<br>
+      <strong>Expanding urinoma → Percutaneous drain ± Ureteral stent (IR/Urology)</strong>
+    </div>
+  </div>
+  <div class="sp"></div>
+
+  <div class="row flow" id="el_discharge_row">
+    <div style="display:flex;gap:20px;">
+      <div class="outcome" style="width:260px;" id="el_dc_low">
+        <div class="ot">Discharge — Grade I–III</div>
+        Activity restriction 4–6 weeks<br>
+        Follow-up UA to confirm<br>hematuria resolution
+      </div>
+      <div class="outcome" style="width:260px;" id="el_dc_high">
+        <div class="ot">Discharge — Grade IV–V</div>
+        Activity restriction 3 months<br>
+        Follow-up CT at 3 months<br>
+        Monitor BP (renovascular HTN)
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Based on AUA/WTA Guidelines and AAST 2018 Revised Renal Injury Scale &bull; For institutional use only<br>
+    <span class="version">v1.0 &bull; March 2026</span>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  const chart=document.getElementById('chart'),svg=document.getElementById('connectors');
+  const W=chart.scrollWidth,H=chart.scrollHeight;
+  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width=W+'px';svg.style.height=H+'px';
+  const CR=chart.getBoundingClientRect(),CX=W/2,mc='#334155';
+  function r(id){const el=document.getElementById(id);if(!el)return null;const b=el.getBoundingClientRect();return{t:b.top-CR.top,b:b.bottom-CR.top,l:b.left-CR.left,r:b.right-CR.left,cx:(b.left+b.right)/2-CR.left,cy:(b.top+b.bottom)/2-CR.top};}
+  function line(x1,y1,x2,y2,c=mc,w=2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  function arrowHead(x,y,a,c=mc,s=8){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${x},${y} ${x-s*Math.cos(a-Math.PI/6)},${y-s*Math.sin(a-Math.PI/6)} ${x-s*Math.cos(a+Math.PI/6)},${y-s*Math.sin(a+Math.PI/6)}`);p.setAttribute('fill',c);svg.appendChild(p);}
+  function arrow(x1,y1,x2,y2,c=mc,w=2){line(x1,y1,x2,y2,c,w);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),c);}
+  function lPath(pts,c=mc,w=2){for(let i=0;i<pts.length-1;i++)line(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],c,w);if(pts.length>=2){const[px,py]=pts[pts.length-2],[ex,ey]=pts[pts.length-1];arrowHead(ex,ey,Math.atan2(ey-py,ex-px),c);}}
+  function pill(x,y,t,c,bg){const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');const pw=t.length*9+18;fo.setAttribute('x',x-pw/2);fo.setAttribute('y',y-12);fo.setAttribute('width',pw);fo.setAttribute('height',24);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;font-size:12px;font-weight:800;color:${c};background:${bg};border:2px solid ${c};border-radius:12px;text-align:center;line-height:20px;width:${pw}px;height:24px;">${t}</div>`;svg.appendChild(fo);}
+  function dPts(id){const o=document.getElementById(id);const d=o.querySelector('.diamond');if(!d)return null;const b=d.getBoundingClientRect();const cx=(b.left+b.right)/2-CR.left,cy=(b.top+b.bottom)/2-CR.top;return{top:{x:cx,y:b.top-CR.top},bottom:{x:cx,y:b.bottom-CR.top},left:{x:b.left-CR.left,y:cy},right:{x:b.right-CR.left,y:cy}};}
+
+  const title=r('el_title'),entry=r('el_entry'),hemo=dPts('el_hemo');
+  const unstable=r('el_unstable'),stable=r('el_stable');
+  const unstableCol=r('el_unstable_col'),stableCol=r('el_stable_col');
+  const extrav=dPts('el_extrav'),embolize=r('el_embolize'),observe=r('el_observe');
+  const urinoma=r('el_urinoma');
+  const dcLow=r('el_dc_low'),dcHigh=r('el_dc_high');
+
+  arrow(CX,title.b,CX,entry.t,mc,2.5);
+  arrow(CX,entry.b,hemo.top.x,hemo.top.y,mc,2.5);
+
+  lPath([[hemo.left.x,hemo.left.y],[unstableCol.cx,hemo.left.y],[unstableCol.cx,unstable.t]],'#dc2626',2.5);
+  pill((hemo.left.x+unstableCol.cx)/2,hemo.left.y,'NO','#dc2626','#fef2f2');
+
+  lPath([[hemo.right.x,hemo.right.y],[stableCol.cx,hemo.right.y],[stableCol.cx,stable.t]],'#16a34a',2.5);
+  pill((hemo.right.x+stableCol.cx)/2,hemo.right.y,'YES','#16a34a','#f0fdf4');
+
+  arrow(unstable.cx,unstable.b,unstable.cx,unstable.b+12);
+  arrow(stable.cx,stable.b,stable.cx,stable.b+12);
+  arrow(stableCol.cx,stableCol.b,extrav.top.x,extrav.top.y,mc,2);
+
+  lPath([[extrav.left.x,extrav.left.y],[embolize.cx,extrav.left.y],[embolize.cx,embolize.t]],'#dc2626',2.5);
+  pill((extrav.left.x+embolize.cx)/2,extrav.left.y,'YES','#dc2626','#fef2f2');
+
+  lPath([[extrav.right.x,extrav.right.y],[observe.cx,extrav.right.y],[observe.cx,observe.t]],'#16a34a',2.5);
+  pill((extrav.right.x+observe.cx)/2,extrav.right.y,'NO','#16a34a','#f0fdf4');
+
+  const extMerge=Math.max(embolize.b,observe.b)+14;
+  line(embolize.cx,embolize.b,embolize.cx,extMerge);
+  line(observe.cx,observe.b,observe.cx,extMerge);
+  line(embolize.cx,extMerge,observe.cx,extMerge);
+  arrow(CX,extMerge,CX,urinoma.t,mc,2.5);
+
+  const dcBus=urinoma.b+14;
+  line(CX,urinoma.b,CX,dcBus);
+  line(dcLow.cx,dcBus,dcHigh.cx,dcBus);
+  arrow(dcLow.cx,dcBus,dcLow.cx,dcLow.t);
+  arrow(dcHigh.cx,dcBus,dcHigh.cx,dcHigh.t);
+});
+</script>
+</body>
+</html>
