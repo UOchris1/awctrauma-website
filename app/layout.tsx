@@ -5,8 +5,10 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.awctrauma.org'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'Level 1 Trauma Center Resources',
   description: 'Access resident guidelines, clinical practice guidelines, and trauma policies for Level 1 Trauma Center.',
   keywords: 'trauma center, medical resources, clinical guidelines, resident guidelines, CPGs, trauma policies, Level 1 trauma',
