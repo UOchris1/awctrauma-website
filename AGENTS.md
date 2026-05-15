@@ -17,6 +17,8 @@
 
 - The production `algorithms` table currently has `card_color` but may not have `html_url`.
 - Before relying on interactive HTML flowcharts, run `supabase/migrations/20260326_add_html_url.sql` in Supabase.
+- Configure `SUPABASE_SERVICE_ROLE_KEY` in Vercel before tightening RLS. Server write routes use `lib/supabaseAdmin.ts`, which switches to the service role when that env var exists.
+- After the service role env var is configured, apply `supabase/migrations/20260515_harden_storage_and_algorithm_rls.sql` so the public anon key cannot mutate algorithms or storage directly.
 - Keep migrations and TypeScript types aligned. If a route writes a new column, confirm the production schema has that column first.
 
 ## Verification

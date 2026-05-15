@@ -14,6 +14,7 @@
    ```
    NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
    NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+   SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
    ADMIN_PASSWORD=<your-secure-admin-password>
    ```
 
@@ -55,6 +56,7 @@ If not already done, run the migration script in your Supabase dashboard:
 |----------|-------------|----------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | Yes |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only key used by authenticated admin API routes for database/storage writes | Yes |
 | `ADMIN_PASSWORD` | Password for admin panel access | Yes |
 | `NEXT_PUBLIC_SITE_URL` | Your domain (auto-set by Vercel) | No |
 

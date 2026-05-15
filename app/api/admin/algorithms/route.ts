@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { isAdminRequest, unauthorizedResponse } from '@/lib/adminAuth'
 
 // GET - List all algorithms
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
       return unauthorizedResponse()
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('algorithms')
       .select('*')
       .order('sort_order', { ascending: true })
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     // Get max sort_order if not provided
     let finalSortOrder = sort_order
     if (finalSortOrder === undefined) {
-      const { data: maxData } = await supabase
+      const { data: maxData } = await supabaseAdmin
         .from('algorithms')
         .select('sort_order')
         .order('sort_order', { ascending: false })
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       finalSortOrder = maxData && maxData.length > 0 ? maxData[0].sort_order + 1 : 1
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('algorithms')
       .insert({
         title,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { isAdminRequest, unauthorizedResponse } from '@/lib/adminAuth'
 
 const ALLOWED_TYPES = [
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer)
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('algorithms')
       .upload(fileName, buffer, {
         contentType: file.type,
@@ -67,14 +67,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabaseAdmin.storage
       .from('algorithms')
       .getPublicUrl(fileName)
 
     const imageUrl = urlData.publicUrl
 
     // Update the algorithm record with the new image URL
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('algorithms')
       .update({ image_url: imageUrl })
       .eq('id', algorithmId)

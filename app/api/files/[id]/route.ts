@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { FileCategory } from '@/lib/supabase'
 
 interface RouteParams {
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('files')
       .select('*')
       .eq('id', id)
@@ -117,7 +118,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const { id } = await params
 
     // First, get the file record to find the storage path
-    const { data: file, error: fetchError } = await supabase
+    const { data: file, error: fetchError } = await supabaseAdmin
       .from('files')
       .select('file_url, category')
       .eq('id', id)
@@ -140,7 +141,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const filePath = urlParts[1] || null
 
     // Delete from database
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await supabaseAdmin
       .from('files')
       .delete()
       .eq('id', id)
@@ -155,7 +156,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Delete from storage if we have the path
     if (filePath) {
-      const { error: storageError } = await supabase.storage
+      const { error: storageError } = await supabaseAdmin.storage
         .from('guidelines')
         .remove([filePath])
 

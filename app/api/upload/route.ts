@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { FileType } from '@/lib/supabase'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     const fileData = new Uint8Array(arrayBuffer)
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('guidelines')
       .upload(filePath, fileData, {
         contentType: file.type,
@@ -85,12 +85,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = supabaseAdmin.storage
       .from('guidelines')
       .getPublicUrl(filePath)
 
     // Create database record with file metadata
-    const { data: dbData, error: dbError } = await supabase
+    const { data: dbData, error: dbError } = await supabaseAdmin
       .from('files')
       .insert({
         title,
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
     if (dbError) {
       // Rollback: delete uploaded file
-      await supabase.storage.from('guidelines').remove([filePath])
+      await supabaseAdmin.storage.from('guidelines').remove([filePath])
       console.error('Database error:', dbError)
       return NextResponse.json(
         { error: 'Failed to save file record' },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { isAdminRequest, unauthorizedResponse } from '@/lib/adminAuth'
 
 interface RouteParams {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('algorithms')
       .select('*')
       .eq('id', id)
@@ -50,7 +50,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (sort_order !== undefined) updateData.sort_order = sort_order
     if (is_active !== undefined) updateData.is_active = is_active
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('algorithms')
       .update(updateData)
       .eq('id', id)
@@ -77,7 +77,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const { id } = await params
 
     // Get the algorithm first to check for image
-    const { data: algorithm } = await supabase
+    const { data: algorithm } = await supabaseAdmin
       .from('algorithms')
       .select('image_url')
       .eq('id', id)
@@ -87,12 +87,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     if (algorithm?.image_url) {
       const path = algorithm.image_url.split('/algorithms/')[1]
       if (path) {
-        await supabase.storage.from('algorithms').remove([path])
+        await supabaseAdmin.storage.from('algorithms').remove([path])
       }
     }
 
     // Delete the record
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('algorithms')
       .delete()
       .eq('id', id)

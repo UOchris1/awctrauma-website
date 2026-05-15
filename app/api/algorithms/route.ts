@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 // GET - Fetch all algorithms
 export async function GET() {
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
       insertData.html_url = html_url.trim()
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('algorithms')
       .insert(insertData)
       .select()

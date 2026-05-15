@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 // GET - Fetch single algorithm
 export async function GET(
@@ -53,7 +54,7 @@ export async function PUT(
     if (sort_order !== undefined) updateData.sort_order = sort_order
     if (is_active !== undefined) updateData.is_active = is_active
 
-    const update = async (dataToUpdate: Record<string, unknown>) => supabase
+    const update = async (dataToUpdate: Record<string, unknown>) => supabaseAdmin
       .from('algorithms')
       .update(dataToUpdate)
       .eq('id', id)
@@ -95,7 +96,7 @@ export async function DELETE(
 
     const { id } = await params
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('algorithms')
       .delete()
       .eq('id', id)
