@@ -37,18 +37,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Title and short_title are required' }, { status: 400 })
     }
 
+    const insertData: Record<string, unknown> = {
+      title,
+      short_title,
+      icon_type: icon_type || 'default',
+      card_color: card_color || 'auto',
+      image_url: image_url || null,
+      sort_order: sort_order || 0,
+      is_active: true
+    }
+
+    if (typeof html_url === 'string' && html_url.trim()) {
+      insertData.html_url = html_url.trim()
+    }
+
     const { data, error } = await supabase
       .from('algorithms')
-      .insert({
-        title,
-        short_title,
-        icon_type: icon_type || 'default',
-        card_color: card_color || 'auto',
-        image_url: image_url || null,
-        html_url: html_url || null,
-        sort_order: sort_order || 0,
-        is_active: true
-      })
+      .insert(insertData)
       .select()
       .single()
 

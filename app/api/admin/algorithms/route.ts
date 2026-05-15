@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { isAdminRequest, unauthorizedResponse } from '@/lib/adminAuth'
 
 // GET - List all algorithms
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    if (!isAdminRequest(request)) {
+      return unauthorizedResponse()
+    }
+
     const { data, error } = await supabase
       .from('algorithms')
       .select('*')
@@ -22,6 +27,10 @@ export async function GET() {
 // POST - Create new algorithm
 export async function POST(request: NextRequest) {
   try {
+    if (!isAdminRequest(request)) {
+      return unauthorizedResponse()
+    }
+
     const body = await request.json()
     const { title, short_title, icon_type, image_url, sort_order, is_active } = body
 

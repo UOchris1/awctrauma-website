@@ -1,67 +1,86 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
+import { supabase } from '@/lib/supabase'
+import { isAdminRequest, unauthorizedResponse } from '@/lib/adminAuth'
+
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp'
+]
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const authCookie = request.cookies.get('admin-auth')
-    if (!authCookie || authCookie.value !== 'true') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdminRequest(request)) {
+      return unauthorizedResponse()
     }
 
     const formData = await request.formData()
     const file = formData.get('file') as File | null
+    const algorithmId = formData.get('algorithmId') as string | null
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-    if (!allowedTypes.includes(file.type)) {
+    if (!algorithmId) {
+      return NextResponse.json({ error: 'Algorithm ID is required' }, { status: 400 })
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
         { error: 'Invalid file type. Only JPG, PNG, and WebP are allowed.' },
         { status: 400 }
       )
     }
 
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024
-    if (file.size > maxSize) {
+    if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: 'File too large. Maximum size is 10MB.' },
         { status: 400 }
       )
     }
 
-    // Generate filename
-    const timestamp = Date.now()
-    const originalName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-    const ext = path.extname(originalName) || '.jpg'
-    const baseName = path.basename(originalName, ext)
-    const fileName = `${baseName}_${timestamp}${ext}`
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+    const fileName = `${algorithmId}.${ext}`
+    const buffer = Buffer.from(await file.arrayBuffer())
 
-    // Ensure flowcharts directory exists
-    const flowchartsDir = path.join(process.cwd(), 'public', 'flowcharts')
-    await mkdir(flowchartsDir, { recursive: true })
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('algorithms')
+      .upload(fileName, buffer, {
+        contentType: file.type,
+        upsert: true
+      })
 
-    // Write file
-    const filePath = path.join(flowchartsDir, fileName)
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    await writeFile(filePath, buffer)
+    if (uploadError) {
+      return NextResponse.json({ error: uploadError.message }, { status: 500 })
+    }
 
-    // Return the public URL
-    const imageUrl = `/flowcharts/${fileName}`
+    const { data: urlData } = supabase.storage
+      .from('algorithms')
+      .getPublicUrl(fileName)
+
+    const imageUrl = urlData.publicUrl
+
+    const { error: updateError } = await supabase
+      .from('algorithms')
+      .update({ image_url: imageUrl })
+      .eq('id', algorithmId)
+
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,
+      image_url: imageUrl,
       imageUrl,
-      fileName
+      path: uploadData.path
     })
   } catch (error) {
-    console.error('Error uploading image:', error)
+    console.error('Error uploading algorithm image:', error)
     return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
   }
 }

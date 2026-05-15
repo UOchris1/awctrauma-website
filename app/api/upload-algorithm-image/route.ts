@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { isAdminRequest, unauthorizedResponse } from '@/lib/adminAuth'
 
 const ALLOWED_TYPES = [
   'image/jpeg',
+  'image/jpg',
   'image/png',
   'image/gif',
   'image/webp'
@@ -12,6 +14,10 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isAdminRequest(request)) {
+      return unauthorizedResponse()
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const algorithmId = formData.get('algorithmId') as string | null
@@ -80,6 +86,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       image_url: imageUrl,
+      imageUrl,
       path: uploadData.path
     })
   } catch (err) {

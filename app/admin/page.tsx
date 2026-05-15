@@ -260,32 +260,31 @@ export default function AdminPage() {
 
     setSavingAlgorithm(true)
     try {
-      let imageUrl = null
-
-      // Upload image if selected
-      if (newAlgorithmImage) {
-        const formData = new FormData()
-        formData.append('file', newAlgorithmImage)
-        formData.append('filename', newAlgorithm.short_title.toLowerCase().replace(/\s+/g, '_'))
-
-        const uploadRes = await fetch('/api/algorithms/upload-image', {
-          method: 'POST',
-          body: formData
-        })
-
-        if (uploadRes.ok) {
-          const uploadData = await uploadRes.json()
-          imageUrl = uploadData.imageUrl
-        }
-      }
-
       const res = await fetch('/api/algorithms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newAlgorithm, image_url: imageUrl })
+        body: JSON.stringify(newAlgorithm)
       })
 
       if (res.ok) {
+        const createdAlgorithm = await res.json()
+
+        if (newAlgorithmImage && createdAlgorithm.id) {
+          const formData = new FormData()
+          formData.append('file', newAlgorithmImage)
+          formData.append('algorithmId', createdAlgorithm.id)
+
+          const uploadRes = await fetch('/api/algorithms/upload-image', {
+            method: 'POST',
+            body: formData
+          })
+
+          if (!uploadRes.ok) {
+            const uploadData = await uploadRes.json().catch(() => ({}))
+            throw new Error(uploadData.error || 'Algorithm created, but image upload failed')
+          }
+        }
+
         setMessage({ type: 'success', text: 'Algorithm created successfully!' })
         setShowNewForm(false)
         setNewAlgorithm({ title: '', short_title: '', icon_type: 'default', card_color: 'auto', sort_order: 0 })
@@ -295,7 +294,7 @@ export default function AdminPage() {
         throw new Error('Create failed')
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to create algorithm' })
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to create algorithm' })
     } finally {
       setSavingAlgorithm(false)
     }

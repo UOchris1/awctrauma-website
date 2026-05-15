@@ -8,6 +8,8 @@
 
 ## AWC Trauma Website - Project Context
 
+Also read `AGENTS.md` before changing production-facing code. It has the current rules for image storage, admin API auth, schema drift, and verification.
+
 ### Project Overview
 Medical resource website for Level 1 Trauma Center. Built with Next.js 15.5.2, Supabase, and Tailwind CSS.
 

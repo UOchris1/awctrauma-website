@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { isAdminRequest, unauthorizedResponse } from '@/lib/adminAuth'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -8,6 +9,10 @@ interface RouteParams {
 // GET - Get single algorithm
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    if (!isAdminRequest(request)) {
+      return unauthorizedResponse()
+    }
+
     const { id } = await params
 
     const { data, error } = await supabase
@@ -29,6 +34,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT - Update algorithm
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    if (!isAdminRequest(request)) {
+      return unauthorizedResponse()
+    }
+
     const { id } = await params
     const body = await request.json()
     const { title, short_title, icon_type, image_url, sort_order, is_active } = body
@@ -61,6 +70,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE - Delete algorithm
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    if (!isAdminRequest(request)) {
+      return unauthorizedResponse()
+    }
+
     const { id } = await params
 
     // Get the algorithm first to check for image

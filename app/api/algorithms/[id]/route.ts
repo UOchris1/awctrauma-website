@@ -53,12 +53,21 @@ export async function PUT(
     if (sort_order !== undefined) updateData.sort_order = sort_order
     if (is_active !== undefined) updateData.is_active = is_active
 
-    const { data, error } = await supabase
+    const update = async (dataToUpdate: Record<string, unknown>) => supabase
       .from('algorithms')
-      .update(updateData)
+      .update(dataToUpdate)
       .eq('id', id)
       .select()
       .single()
+
+    let { data, error } = await update(updateData)
+
+    if (error && updateData.html_url !== undefined && error.message.includes("'html_url' column")) {
+      delete updateData.html_url
+      const retryResult = await update(updateData)
+      data = retryResult.data
+      error = retryResult.error
+    }
 
     if (error) {
       console.error('Error updating algorithm:', error)

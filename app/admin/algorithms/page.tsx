@@ -77,10 +77,15 @@ export default function AlgorithmsManagePage() {
         formDataUpload.append('file', imageFile)
         formDataUpload.append('algorithmId', data.algorithm.id)
 
-        await fetch('/api/upload-algorithm-image', {
+        const uploadRes = await fetch('/api/upload-algorithm-image', {
           method: 'POST',
           body: formDataUpload
         })
+
+        if (!uploadRes.ok) {
+          const uploadData = await uploadRes.json().catch(() => ({}))
+          throw new Error(uploadData.error || 'Algorithm created, but image upload failed')
+        }
       }
 
       setShowAddModal(false)
@@ -113,10 +118,15 @@ export default function AlgorithmsManagePage() {
         formDataUpload.append('file', imageFile)
         formDataUpload.append('algorithmId', selectedAlgorithm.id)
 
-        await fetch('/api/upload-algorithm-image', {
+        const uploadRes = await fetch('/api/upload-algorithm-image', {
           method: 'POST',
           body: formDataUpload
         })
+
+        if (!uploadRes.ok) {
+          const uploadData = await uploadRes.json().catch(() => ({}))
+          throw new Error(uploadData.error || 'Image upload failed')
+        }
       }
 
       setShowEditModal(false)
