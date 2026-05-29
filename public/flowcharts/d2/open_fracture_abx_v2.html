@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Fracture Antibiotic Prophylaxis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1e3a5f; --navy-deep:#16314f;
+    --teal:#1c7a8c; --teal-bg:#e9f4f6;
+    --red:#c0392b; --red-bg:#fceeec;
+    --green:#2e7d4f; --green-bg:#eaf5ee;
+    --blue:#2c5fa8; --blue-bg:#ebf1fb;
+    --orange:#c47b1a; --orange-bg:#fcf2e2;
+    --purple:#5b4b8a; --purple-bg:#f2eff9;
+    --ink:#243240; --ink-soft:#52606d;
+    --line:#dde4ea; --rule:#c6d0d8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#aeb6bd;font-family:'Public Sans','Helvetica Neue',sans-serif;color:var(--ink);padding:26px;display:flex;justify-content:center;}
+  .sheet{width:1040px;background:#fff;padding:26px 28px 18px;box-shadow:0 18px 50px rgba(0,0,0,.28);border-radius:8px;}
+  h1,.box-title,.factor,th,.cap,.tier-h,.score-tag,.stamp{font-family:'Archivo',sans-serif;}
+
+  .ic{width:42px;height:42px;flex:0 0 42px;stroke-linecap:round;stroke-linejoin:round;fill:none;}
+  .ic-sm{width:28px;height:28px;flex:0 0 28px;stroke-linecap:round;stroke-linejoin:round;fill:none;color:var(--navy);}
+
+  .header{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-deep) 100%);border-radius:12px;text-align:center;padding:16px 20px 14px;color:#fff;}
+  .header h1{font-size:29px;font-weight:800;letter-spacing:.2px;}
+  .header p{font-size:13.5px;font-weight:600;color:#bcd0e4;margin-top:4px;letter-spacing:.4px;}
+
+  .row{display:flex;gap:16px;}
+  .arrow-down{display:flex;justify-content:center;color:var(--navy);font-size:18px;line-height:1;margin:8px 0;}
+
+  .box{border-radius:12px;padding:13px 16px;border:2px solid;}
+  .box-head{display:flex;align-items:center;gap:12px;margin-bottom:7px;}
+  .box-title{font-size:17px;font-weight:700;line-height:1.15;}
+  .box p,.box .ln{font-size:13.5px;color:var(--ink-soft);line-height:1.5;}
+  .box .ln b{color:var(--ink);}
+
+  .teal{background:var(--teal-bg);border-color:#c2e0e5;color:var(--teal);}
+  .red{background:var(--red-bg);border-color:#f0cbc7;color:var(--red);}
+  .green{background:var(--green-bg);border-color:#c4e2cf;color:var(--green);}
+  .blue{background:var(--blue-bg);border-color:#c6d8f0;color:var(--blue);}
+  .orange{background:var(--orange-bg);border-color:#ecd6ab;color:var(--orange);}
+  .purple{background:var(--purple-bg);border-color:#d6cdee;color:var(--purple);}
+  .box .box-title{color:inherit;}
+  .top .box{flex:1;}
+
+  /* Regimen table */
+  .scorewrap{border:1px solid var(--rule);border-radius:12px;overflow:hidden;}
+  .cap{background:var(--navy);color:#fff;text-align:center;font-weight:700;font-size:16px;padding:9px;letter-spacing:.3px;}
+  table{width:100%;border-collapse:collapse;}
+  th{background:#2c4a6e;color:#dce7f2;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:8px 14px;text-align:left;vertical-align:middle;}
+  td{padding:9px 14px;font-size:13px;border-top:1px solid var(--line);color:var(--ink);vertical-align:top;line-height:1.45;}
+  tbody tr:nth-child(even){background:#f6f9fb;}
+  .typecell{font-family:'Archivo';font-weight:700;font-size:13.5px;color:var(--navy);}
+  .typecell small{display:block;font-family:'Public Sans';font-weight:500;font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .rx b{color:var(--ink);}
+  .rx .dose{color:var(--ink-soft);}
+  .coltype{width:210px;}
+  .ref{color:var(--orange);font-weight:700;}
+
+  /* Add-on / duration row */
+  .addon .box{flex:1;}
+  .addon .box-title{font-size:15px;}
+  .pill-tag{font-family:'Archivo';font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.5px;display:inline-block;padding:2px 8px;border-radius:5px;margin-bottom:5px;}
+
+  ul{list-style:none;}
+  .box li{font-size:12.8px;color:var(--ink-soft);line-height:1.5;padding-left:13px;position:relative;margin-bottom:1px;}
+  .box li::before{content:"•";position:absolute;left:0;color:var(--rule);}
+  .box li b{color:var(--ink);}
+
+  /* Evidence notes — visually distinct from policy */
+  .evidence{border:2px dashed #b9a96e;background:#fffdf4;border-radius:12px;padding:12px 16px;}
+  .evidence .ev-h{font-family:'Archivo';font-weight:700;color:#9a7d1e;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .evidence li{font-size:12.5px;color:#5c5226;line-height:1.5;padding-left:15px;position:relative;margin-bottom:4px;}
+  .evidence li::before{content:"†";position:absolute;left:0;color:#b9962a;font-weight:700;}
+  .evidence li b{color:#3f3a17;}
+
+  /* Gustilo reference */
+  .gcap{background:#3a4654;color:#fff;text-align:center;font-weight:700;font-size:13px;padding:7px;font-family:'Archivo';letter-spacing:.4px;}
+  .gust th{background:#52606d;font-size:10.5px;}
+  .gust td{padding:5px 14px;font-size:12px;}
+
+  .footer{text-align:center;margin-top:14px;color:#7c8a96;font-size:11px;line-height:1.6;}
+  .footer .v{display:block;margin-top:2px;color:#9aa6b1;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="header">
+    <h1>Open Fracture — Antibiotic Prophylaxis</h1>
+    <p>Gustilo–Anderson Classification &nbsp;•&nbsp; Institutional Guideline TRM_GUI.0031 &nbsp;•&nbsp; Empiric Regimens</p>
+  </div>
+
+  <div class="arrow-down">▼</div>
+
+  <div class="row top">
+    <div class="box teal">
+      <div class="box-head">
+        <svg class="ic" stroke="currentColor" viewBox="0 0 48 48" stroke-width="2.2">
+          <path d="M14 10 a4 4 0 0 1 -4 4 a4 4 0 0 1 4 4 l8 8"/>
+          <path d="M34 38 a4 4 0 0 1 4 -4 a4 4 0 0 1 -4 -4 l-8 -8"/>
+          <path d="M22 26 l4 -4"/>
+        </svg>
+        <div class="box-title">Open Fracture Identified<br>— ED Arrival</div>
+      </div>
+      <p class="ln"><b>Give antibiotics as early as possible</b> — ideally ≤ 1 h. Do not delay for imaging or transfer. Update tetanus. Classify Gustilo–Anderson type.</p>
+    </div>
+    <div class="box orange">
+      <div class="box-head">
+        <svg class="ic" stroke="currentColor" viewBox="0 0 48 48" stroke-width="2.2">
+          <path d="M24 8 L41 38 H7 Z"/><line x1="24" y1="18" x2="24" y2="28"/>
+          <circle cx="24" cy="33" r="1.5" fill="currentColor" stroke="none"/>
+        </svg>
+        <div class="box-title">Two Questions Drive the Regimen</div>
+      </div>
+      <p class="ln"><b>1.</b> β-lactam allergy?&nbsp;&nbsp;<b>2.</b> Gustilo type + contamination (soil/fecal or standing water)? &nbsp;Then add vancomycin if known MRSA colonization.</p>
+    </div>
+  </div>
+
+  <div class="arrow-down">▼</div>
+
+  <div class="scorewrap">
+    <div class="cap">Empiric Regimen by Fracture Type &nbsp;·&nbsp; per TRM_GUI.0031</div>
+    <table>
+      <thead><tr><th class="coltype">Fracture type / wound</th><th>Preferred</th><th>β-lactam allergy</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="typecell">Type I / II<small>Lower-energy, ≤ 10 cm wound</small></span></td>
+          <td class="rx"><b>Cefazolin</b> <span class="dose">2 g IV q8h&nbsp;(3 g if &gt; 120 kg)</span></td>
+          <td class="rx"><b>Clindamycin</b> <span class="dose">900 mg IV q8h</span></td>
+        </tr>
+        <tr>
+          <td><span class="typecell">Type III — clean<small>High-energy / &gt; 10 cm</small></span></td>
+          <td class="rx"><b>Ceftriaxone</b> <span class="dose">2 g IV q24h</span></td>
+          <td class="rx"><b>Clindamycin</b> <span class="dose">900 mg IV q8h</span> <b>+ Levofloxacin</b> <span class="dose">500 mg IV q24h</span></td>
+        </tr>
+        <tr>
+          <td><span class="typecell">Type III + soil / fecal<small>Gross organic contamination</small></span></td>
+          <td class="rx"><b>Ceftriaxone</b> <span class="dose">2 g IV q24h</span> <b>+ Metronidazole</b> <span class="dose">500 mg IV q8h</span></td>
+          <td class="rx">Clindamycin + Levofloxacin <span class="dose">(clindamycin covers anaerobes)</span> <span class="ref">†</span></td>
+        </tr>
+        <tr>
+          <td><span class="typecell">Type III + standing / open water<small>Fresh, salt, or brackish water</small></span></td>
+          <td class="rx"><b>Piperacillin–tazobactam</b> <span class="dose">4.5 g IV q8h</span> &nbsp;<span class="ref">† see water note</span></td>
+          <td class="rx">Ciprofloxacin 400 mg IV q12h — <span class="dose">consult ID / pharmacy</span> <span class="ref">†</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="arrow-down">▼</div>
+
+  <div class="row addon">
+    <div class="box purple">
+      <div class="box-head">
+        <svg class="ic" stroke="currentColor" viewBox="0 0 48 48" stroke-width="2.2"><path d="M24 6 L39 12 V24 c0 10 -7 15 -15 18 c-8 -3 -15 -8 -15 -18 V12 Z"/><path d="M24 18 v10 M19 23 h10"/></svg>
+        <div class="box-title"><span class="pill-tag" style="background:var(--purple-bg);color:var(--purple)">Add for known MRSA colonization</span>Vancomycin</div>
+      </div>
+      <ul>
+        <li><b>Vancomycin 15 mg/kg IV q12h</b> — added to any regimen above for documented MRSA colonization.</li>
+        <li>Pharmacy-dosed; see evidence note on AUC-guided dosing.</li>
+      </ul>
+    </div>
+    <div class="box blue">
+      <div class="box-head">
+        <svg class="ic" stroke="currentColor" viewBox="0 0 48 48" stroke-width="2.2"><circle cx="24" cy="26" r="14"/><path d="M24 18 v8 l5 4"/><path d="M19 8 h10"/></svg>
+        <div class="box-title">Duration</div>
+      </div>
+      <ul>
+        <li><b>Type I / II:</b> 24 hours.</li>
+        <li><b>Type III:</b> continue until <b>24 h after final wound closure</b>.</li>
+        <li>No added benefit beyond 24 h post-closure, even for Type III.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="arrow-down">▼</div>
+
+  <div class="evidence">
+    <div class="ev-h">
+      <svg class="ic-sm" stroke="#9a7d1e" viewBox="0 0 48 48" stroke-width="2.2"><circle cx="24" cy="24" r="16"/><path d="M24 16 v9"/><circle cx="24" cy="31" r="1.4" fill="#9a7d1e" stroke="none"/></svg>
+      Evidence notes <span style="font-weight:500;font-family:'Public Sans';color:#8a7320;font-size:12px;">— beyond the institutional guideline; current evidence, confirm locally before use</span>
+    </div>
+    <ul>
+      <li><b>Water exposure:</b> piperacillin–tazobactam (per policy) covers <i>Aeromonas</i> (fresh / brackish water). For <b>saltwater or brackish</b> wounds, current ID guidance also favors <b>Doxycycline 100 mg IV/PO q12h + a 3rd-gen cephalosporin (e.g., ceftazidime)</b> for <i>Vibrio vulnificus</i>.</li>
+      <li><b>Vancomycin:</b> AUC-guided dosing is now preferred over trough targets (ASHP/IDSA 2020) — dose per pharmacy.</li>
+      <li><b>Timing:</b> earliest antibiotic administration (≤ 1 h) is the factor most strongly associated with reduced infection.</li>
+      <li><b>β-lactam allergy with contaminated Type III:</b> regimen not specified in policy — consult ID / pharmacy.</li>
+    </ul>
+  </div>
+
+  <div class="arrow-down">▼</div>
+
+  <div class="box green">
+    <div class="box-head">
+      <svg class="ic" stroke="currentColor" viewBox="0 0 48 48" stroke-width="2.2"><rect x="11" y="11" width="26" height="31" rx="2.5"/><rect x="18" y="7" width="12" height="7" rx="2"/><path d="M16 27 l4 4 l9 -10"/></svg>
+      <div class="box-title">Concurrent Care</div>
+    </div>
+    <ul style="columns:2;column-gap:28px;">
+      <li><b>Tetanus prophylaxis</b> per immunization status.</li>
+      <li><b>Irrigation &amp; debridement</b> — urgent; emergent for gross contamination or vascular compromise.</li>
+      <li>Plan <b>definitive soft-tissue coverage</b> (target ≤ 5–7 days).</li>
+      <li>Re-dose intraoperative antibiotics per blood loss / duration.</li>
+    </ul>
+  </div>
+
+  <div class="arrow-down">▼</div>
+
+  <div class="scorewrap gust" style="margin-bottom:2px;">
+    <div class="gcap">Gustilo–Anderson Classification (reference)</div>
+    <table>
+      <thead><tr><th style="width:90px;">Type</th><th style="width:110px;">Wound</th><th>Soft tissue</th><th style="width:150px;">Contamination</th></tr></thead>
+      <tbody>
+        <tr><td class="typecell">I</td><td>&lt; 1 cm</td><td>Minimal damage</td><td>Clean</td></tr>
+        <tr><td class="typecell">II</td><td>1–10 cm</td><td>Moderate damage, no flap</td><td>Moderate</td></tr>
+        <tr><td class="typecell">IIIA</td><td>&gt; 10 cm</td><td>Adequate coverage possible</td><td>High energy</td></tr>
+        <tr><td class="typecell">IIIB</td><td>&gt; 10 cm</td><td>Requires flap / graft coverage</td><td>Severe</td></tr>
+        <tr><td class="typecell">IIIC</td><td>Any</td><td>Vascular injury requiring repair</td><td>Variable</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Primary regimens per institutional guideline <b>TRM_GUI.0031</b> (Trauma Dept, eff. 06-2017). Evidence notes (†) per EAST PMG open-fracture update (2011), Surgical Infection Society, and ASHP/IDSA vancomycin guidance (2020).
+    <span class="v">Clinical decision support only — not a substitute for clinical judgment &nbsp;•&nbsp; v2.0</span>
+  </div>
+
+</div>
+</body>
+</html>
