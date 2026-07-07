@@ -104,11 +104,12 @@ export default function GlobalSearch({ files, algorithms }: GlobalSearchProps) {
 
   const navigateToResult = (result: SearchResult) => {
     if (result.type === 'algorithm') {
-      // Scroll to algorithm section
+      // Scroll to the algorithms section and open the matching chart.
       const element = document.getElementById('algorithms')
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' })
       }
+      window.dispatchEvent(new CustomEvent('open-algorithm', { detail: { id: result.id } }))
     } else {
       window.location.href = result.url
     }

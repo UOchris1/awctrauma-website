@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ImageLightbox from './ImageLightbox'
 
 // Medical icons as SVG components
@@ -210,6 +210,20 @@ export default function AlgorithmsSection({ algorithms }: AlgorithmsSectionProps
     setIframeOpen(false)
     setSelectedAlgorithm(null)
   }
+
+  // Open a specific chart when the global search dispatches a request for it.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent<{ id: string }>).detail?.id
+      const match = algorithms.find((a) => a.id === id)
+      if (!match) return
+      setSelectedAlgorithm(match)
+      if (match.htmlSrc) setIframeOpen(true)
+      else setLightboxOpen(true)
+    }
+    window.addEventListener('open-algorithm', handler)
+    return () => window.removeEventListener('open-algorithm', handler)
+  }, [algorithms])
 
   return (
     <>
