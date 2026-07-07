@@ -88,14 +88,18 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with Global Search */}
-      <div className="bg-gradient-to-b from-navy-800 to-navy-700 text-white py-10">
-        <div className="container mx-auto max-w-4xl px-4">
+      <div className="relative overflow-hidden bg-gradient-to-b from-navy-900 via-navy-800 to-navy-700 text-white py-14 md:py-16">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.04]" aria-hidden="true" />
+        <div className="container mx-auto max-w-4xl px-4 relative">
           <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold mb-2 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-gold/90 mb-3">
+              Level 1 Trauma Center
+            </p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white text-balance">
               Trauma Center Resources
             </h2>
-            <p className="text-white/80">
-              Quick access to clinical guidelines and decision algorithms for Level 1 Trauma care.
+            <p className="mt-3 text-base md:text-lg text-white/75 max-w-2xl mx-auto">
+              Quick access to clinical guidelines and decision algorithms at the point of care.
             </p>
           </div>
 
@@ -105,9 +109,12 @@ export default async function HomePage() {
       </div>
 
       {/* Quick Reference Algorithms */}
-      <div id="algorithms" className="bg-white py-10 border-b border-gray-200">
+      <div id="algorithms" className="bg-white py-12 border-b border-silver-200">
         <div className="container mx-auto max-w-5xl px-4">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Reference Algorithms & Charts</h2>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-navy-900">Quick Reference Algorithms &amp; Charts</h2>
+            <p className="text-sm text-silver-500 mt-1">Tap any card to open the full flowchart.</p>
+          </div>
           {algorithmsForDisplay.length > 0 ? (
             <AlgorithmsSection algorithms={algorithmsForDisplay} />
           ) : (
@@ -120,9 +127,12 @@ export default async function HomePage() {
       </div>
 
       {/* Guidelines & Documents with Tabs */}
-      <div id="documents" className="bg-gray-50 py-10">
+      <div id="documents" className="bg-silver-50 py-12">
         <div className="container mx-auto max-w-5xl px-4">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Guidelines & Documents</h2>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-navy-900">Guidelines &amp; Documents</h2>
+            <p className="text-sm text-silver-500 mt-1">Browse by category, or search within a tab.</p>
+          </div>
           <TabbedDocuments files={categorizedFiles} />
         </div>
       </div>

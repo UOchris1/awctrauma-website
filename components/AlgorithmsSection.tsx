@@ -227,7 +227,7 @@ export default function AlgorithmsSection({ algorithms }: AlgorithmsSectionProps
               key={algorithm.id}
               onClick={() => openLightbox(algorithm)}
               // Gemini's border-t-4 for category indication + subtle side/bottom border
-              className={`group flex flex-col h-full items-center pt-5 pb-4 px-4 rounded-xl border-b border-x border-silver-200 border-t-4 bg-white shadow-md transition-all duration-300 focus:outline-none focus:ring-4 ${styles.cardHover} ${styles.borderTop}`}
+              className={`group flex flex-col h-full items-center pt-5 pb-4 px-4 rounded-xl border-b border-x border-silver-200 border-t-4 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 motion-reduce:hover:translate-y-0 focus:outline-none focus-visible:ring-4 ${styles.cardHover} ${styles.borderTop}`}
             >
               {/* Icon */}
               <div className={`w-16 h-16 rounded-xl flex items-center justify-center mb-4 transition-colors ${styles.iconBg} ${styles.iconText}`}>
