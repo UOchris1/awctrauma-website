@@ -42,24 +42,20 @@ export default async function ViewerPage({ params }: Props) {
     <div className="min-h-screen bg-silver-100">
       {/* Header Bar */}
       <div className="bg-gradient-to-r from-navy-900 via-navy-800 to-primary text-white shadow-lg">
-        <div className="container mx-auto max-w-6xl px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/"
-                className="flex items-center space-x-2 hover:text-silver-300 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span>Back to Resources</span>
-              </Link>
-              <span className="text-silver-400">|</span>
-              <h1 className="text-lg font-semibold text-silver-200 truncate max-w-md">{file.title}</h1>
-            </div>
-            <div className="flex items-center space-x-3">
+        <div className="container mx-auto max-w-6xl px-4 py-3 sm:py-4">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 hover:text-silver-300 transition-colors flex-shrink-0 text-sm sm:text-base"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span>Back to Resources</span>
+            </Link>
+            <div className="flex items-center gap-3 flex-shrink-0 sm:order-3">
               {/* File Type Badge */}
-              <span className="px-3 py-1 bg-white/10 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-white/10 rounded-full text-xs sm:text-sm font-medium">
                 {fileTypeLabel}
               </span>
               {/* File Size (if available) */}
@@ -69,6 +65,10 @@ export default async function ViewerPage({ params }: Props) {
                 </span>
               )}
             </div>
+            {/* Title: wraps in full on mobile, truncates inline on larger screens */}
+            <h1 className="w-full sm:w-auto sm:flex-1 sm:order-2 min-w-0 text-base sm:text-lg font-semibold text-silver-100 leading-snug sm:truncate">
+              {file.title}
+            </h1>
           </div>
         </div>
       </div>

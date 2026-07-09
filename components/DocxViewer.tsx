@@ -135,18 +135,19 @@ export default function DocxViewer({ url, title }: Props) {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 bg-gradient-to-r from-navy-900 via-navy-800 to-primary text-white px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="sticky top-0 z-10 bg-gradient-to-r from-navy-900 via-navy-800 to-primary text-white px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <svg className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <span className="font-medium truncate max-w-xs sm:max-w-md">{title}</span>
+          <span className="font-medium truncate text-sm sm:text-base">{title}</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+            className="flex items-center gap-2 p-2 sm:px-4 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+            aria-label="Print document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -156,7 +157,8 @@ export default function DocxViewer({ url, title }: Props) {
           <a
             href={url}
             download={title}
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+            className="flex items-center gap-2 p-2 sm:px-4 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+            aria-label="Download document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -166,26 +168,11 @@ export default function DocxViewer({ url, title }: Props) {
         </div>
       </div>
 
-      {/* Document Content */}
-      <div
-        className="overflow-auto p-6 sm:p-8"
-        style={{ maxHeight: 'calc(100vh - 250px)' }}
-      >
+      {/* Document Content — flows with the page on mobile, scrolls in place on desktop */}
+      <div className="overflow-auto p-4 sm:p-8 md:max-h-[calc(100vh-240px)]">
         <article
           ref={contentRef}
-          className="prose prose-lg max-w-none
-            prose-headings:text-navy-900 prose-headings:font-semibold
-            prose-h1:text-2xl prose-h1:border-b-2 prose-h1:border-navy-200 prose-h1:pb-2 prose-h1:mb-4
-            prose-h2:text-xl prose-h2:mt-6
-            prose-h3:text-lg prose-h3:mt-4
-            prose-p:text-gray-700 prose-p:leading-relaxed
-            prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-            prose-table:border-collapse prose-table:w-full
-            prose-td:border prose-td:border-gray-300 prose-td:p-2
-            prose-th:border prose-th:border-gray-300 prose-th:p-2 prose-th:bg-gray-100
-            prose-blockquote:border-l-4 prose-blockquote:border-navy-500 prose-blockquote:pl-4 prose-blockquote:italic
-            prose-ul:list-disc prose-ol:list-decimal
-            prose-img:max-w-full prose-img:h-auto prose-img:rounded-lg"
+          className="docx-content"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
